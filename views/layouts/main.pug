@@ -1,0 +1,30 @@
+doctype html
+html(lang="es")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title= title
+    
+    //- ✅ CAMBIO: Usar tu CSS compilado en lugar del CDN
+    link(rel="stylesheet", href="/css/output.css")
+    
+    //- Mantener tus estilos personalizados si los tienes
+    link(rel="stylesheet", href="/css/styles.css")
+
+    block styles
+    
+  body.bg-gray-50.min-h-screen(data-sistema=sistemaActual ? sistemaActual.id : '')
+    main
+      block content
+    
+    script(src="/js/main.js")
+    
+    //- Cargar JavaScript específico para vale de entrada
+    if currentPage === 'entry-ticket'
+      script(src="/js/entry-ticket.js")
+
+    if currentPage === 'exit-ticket'
+      script(src="/js/exit-ticket.js")
+    
+    //- Scripts adicionales específicos por página
+    block scripts

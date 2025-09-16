@@ -1,0 +1,681 @@
+//- ========================================
+//- VIEWS/INVENTORY/INDEX.PUG - COMPLETO CON AMBAS EXISTENCIAS
+//- ========================================
+
+extends ../layouts/main
+
+block content
+  .min-h-screen.bg-gray-50
+    //- Header
+    header.bg-white.shadow
+      div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8")
+        .flex.justify-between.items-center.py-6
+          .flex.items-center
+            //- Icono de menú hamburguesa (sidebar)
+            button.menu-toggle(
+              type="button" 
+              id="sidebarToggle"
+              class="mr-3 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition duration-150 ease-in-out"
+              title="Abrir menú"
+            )
+              svg.h-6.w-6(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M4 6h16M4 12h16M4 18h16")
+            
+            //- Logo del inventario
+            svg.h-8.w-8.text-emerald-600.mr-3(fill="currentColor", viewBox="0 0 20 20")
+              path(fill-rule="evenodd", d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zm-2 5v5a2 2 0 002 2h12a2 2 0 002-2V9H2zm8 2a1 1 0 011 1v1.586l.293-.293a1 1 0 111.414 1.414l-2 2a1 1 0 01-1.414 0l-2-2a1 1 0 111.414-1.414L9 13.586V12a1 1 0 011-1z", clip-rule="evenodd")
+            
+            //- Título del inventario
+            h1.text-2xl.font-bold.text-gray-900 Inventario
+            
+          .flex.items-center.space-x-4
+            .text-sm.text-gray-700
+              span.font-medium #{user.nombres}
+            
+            form(action="/auth/logout", method="POST", style="display: inline;")
+              button(
+                type="submit"
+                title="Cerrar sesión"
+                class="bg-pink-600 hover:bg-pink-700 text-white p-2 rounded-md transition duration-150 ease-in-out"
+              )
+                svg(
+                  xmlns="http://www.w3.org/2000/svg", 
+                  fill="none", 
+                  viewBox="0 0 24 24", 
+                  stroke-width="1.5", 
+                  stroke="currentColor", 
+                  class="w-5 h-5"
+                )
+                  path(
+                    stroke-linecap="round", 
+                    stroke-linejoin="round", 
+                    d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
+                  )
+
+      //- Overlay para cerrar sidebar en móvil
+      div(id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg=hidden")
+
+      //- Sidebar
+      aside(id="sidebar" class="fixed inset-y-0 left-0 z-50 w-80 bg-white shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out lg=translate-x-0 lg=static lg=inset-0 lg=z-auto lg=shadow-none lg=w-80")
+        .flex.flex-col.h-full
+          
+          //- Header del sidebar
+          .flex.items-center.justify-between.px-6.py-4.bg-gray-50.border-b.border-gray-200
+            .flex.items-center
+              svg.h-6.w-6.text-emerald-600.mr-2(fill="currentColor", viewBox="0 0 20 20")
+                path(fill-rule="evenodd", d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z", clip-rule="evenodd")
+              h2.text-lg.font-semibold.text-gray-900 Historial de vales
+            
+            //- Botón cerrar (solo visible en móvil)
+            button(id="closeSidebar" class="lg=hidden p-1 rounded-md text-gray-400 hover=text-gray-600 hover=bg-gray-100")
+              svg.h-6.w-6(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M6 18L18 6M6 6l12 12")
+          
+          //- Navegación del sidebar
+          nav.flex-1.px-4.py-4.space-y-2.overflow-y-auto
+            
+            //- Sección: Vales de Entrada
+            .space-y-1
+              .px-2.py-1.text-xs.font-semibold.text-gray-500.uppercase.tracking-wide
+                | Vales de Entrada
+              
+              a.sidebar-link(
+                href="/entry-ticket/history"
+                class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 hover:text-gray-900 transition duration-150 ease-in-out"
+              )
+                svg.h-5.w-5.mr-3.text-gray-400(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                  path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z")
+                | Historial de Vales de Entrada
+            //
+              a.sidebar-link(
+                href="/entry-ticket/create"
+                class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 hover:text-gray-900 transition duration-150 ease-in-out"
+              )
+                svg.h-5.w-5.mr-3.text-gray-400(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                  path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M12 6v6m0 0v6m0-6h6m-6 0H6")
+                | Crear Vale de Entrada
+            
+            //- Divisor
+            .border-t.border-gray-200.my-4
+            
+            //- Sección: Vales de Salida
+            .space-y-1
+              .px-2.py-1.text-xs.font-semibold.text-gray-500.uppercase.tracking-wide
+                | Vales de Salida
+              
+              a.sidebar-link(
+                href="/exit-ticket/history"
+                class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 hover:text-gray-900 transition duration-150 ease-in-out"
+              )
+                svg.h-5.w-5.mr-3.text-gray-400(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                  path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z")
+                | Historial de Vales de Salida
+            //
+              a.sidebar-link(
+                href="/exit-ticket/create"
+                class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 hover:text-gray-900 transition duration-150 ease-in-out"
+              )
+                svg.h-5.w-5.mr-3.text-gray-400(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                  path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M12 6v6m0 0v6m0-6h6m-6 0H6")
+                | Crear Vale de Salida
+            
+            //- Divisor
+            .border-t.border-gray-200.my-4
+            
+            //- Sección: Inventario
+            .space-y-1
+              .px-2.py-1.text-xs.font-semibold.text-gray-500.uppercase.tracking-wide
+                | Inventario
+              
+              a.sidebar-link(
+                href="/inventario"
+                class="flex items-center px-3 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 rounded-md"
+              )
+                svg.h-5.w-5.mr-3.text-emerald-500(fill="currentColor", viewBox="0 0 20 20")
+                  path(fill-rule="evenodd", d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zm-2 5v5a2 2 0 002 2h12a2 2 0 002-2V9H2zm8 2a1 1 0 011 1v1.586l.293-.293a1 1 0 111.414 1.414l-2 2a1 1 0 01-1.414 0l-2-2a1 1 0 111.414-1.414L9 13.586V12a1 1 0 011-1z", clip-rule="evenodd")
+                | Ver Inventario
+              
+              a.sidebar-link(
+                href="/inventario/reportes"
+                class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 hover:text-gray-900 transition duration-150 ease-in-out"
+              )
+                svg.h-5.w-5.mr-3.text-gray-400(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                  path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z")
+                | Reportes
+          
+          //- Footer del sidebar
+          .px-4.py-4.border-t.border-gray-200.bg-gray-50
+            .flex.items-center.justify-between.text-xs.text-gray-500
+              span Sistema de Almacén
+              span v1.0
+
+    //- Filtros
+    div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6")      
+      .bg-white.rounded-lg.shadow.p-6.mb-6
+        //- Contenedor de botones en dos columnas
+        .grid.grid-cols-2.gap-4.mb-4
+          //- Botón Vale de Entrada
+          a(
+            href="/entry-ticket/create"
+            class="text-white px-4 py-3 rounded-md text-sm font-medium transition duration-150 ease-in-out flex items-center justify-center"
+            style="background-color: #009887;"
+            onmouseover="this.style.backgroundColor='#00c6b5'"
+            onmouseout="this.style.backgroundColor='#009887'"
+          )
+            svg.h-4.w-4.mr-2(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+              path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M12 6v6m0 0v6m0-6h6m-6 0H6")
+            | Vale de Entrada
+          
+          //- Botón Vale de Salida  
+          a(
+            href="/exit-ticket/create"
+            class="text-white px-4 py-3 rounded-md text-sm font-medium transition duration-150 ease-in-out flex items-center justify-center"
+            style="background-color: #463ECC;"
+            onmouseover="this.style.backgroundColor='#4F46E5'"
+            onmouseout="this.style.backgroundColor='#463ECC'"
+          )
+            svg.h-4.w-4.mr-2(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+              path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M12 6v6m0 0v6m0-6h6m-6 0H6")
+            | Vale de Salida
+
+        h2.text-lg.font-semibold.text-gray-900.mb-4 Filtros de Búsqueda
+        form(id="filterForm" class="grid grid-cols-1 md:grid-cols-3 gap-4" method="GET")
+          //- Filtro por nombre - CORREGIDO: name="search" en lugar de "nombre"
+          .space-y-1
+            label.block.text-sm.font-medium.text-gray-700(for="search") Nombre del Producto
+            input(
+              type="text"
+              id="search"
+              name="search"
+              value=search || ''
+              placeholder="Buscar por nombre..."
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            )
+          
+          //- Filtro por partida - CORREGIDO: name="partida" correcto
+          .space-y-1
+            label.block.text-sm.font-medium.text-gray-700(for="partida") Partida Presupuestal
+            select(
+              id="partida"
+              name="partida"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            )
+              option(value="") Todas las partidas
+              each partida in partidas
+                option(value=partida.id_partida, selected=filters.partida == partida.id_partida)
+                  | #{partida.clave_objeto_del_gasto} - #{partida.partida}
+          
+          //- Botones
+          .space-y-1.flex.items-end
+            .flex.space-x-2
+              button(
+                type="submit"
+                class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out"
+              )
+                | Filtrar
+              
+              a(
+                href="/inventario"
+                class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out"
+              )
+                | Limpiar
+                
+    //- Lista de productos
+    div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8")
+      .bg-white.rounded-lg.shadow.p-4.mb-6
+        h3.text-sm.font-medium.text-gray-900.mb-3 Nivel de Stock
+        .flex.flex-wrap.gap-4.text-xs
+          .flex.items-center
+            .w-3.h-3.bg-red-700.rounded-full.mr-2
+            span Existencia Negativa
+          .flex.items-center
+            .w-3.h-3.bg-red-500.rounded-full.mr-2
+            span Crítico (0-24% ó sin stock sugerido)
+          .flex.items-center
+            .w-3.h-3.bg-orange-500.rounded-full.mr-2
+            span Bajo (25-49%)
+          .flex.items-center
+            .w-3.h-3.bg-yellow-500.rounded-full.mr-2
+            span Medio (50-74%)
+          .flex.items-center
+            .w-3.h-3.bg-green-500.rounded-full.mr-2
+            span Alto (75-100%+)
+
+      //- 🔥 CONTENEDOR DE PRODUCTOS ACTUALIZADO
+      #productsContainer.space-y-4
+        each product in products
+          //- Función auxiliar para determinar clases de color
+          - var stockColorClass = 'bg-gray-100'
+          - var textColorClass = 'text-gray-800'
+          - var indicatorClass = 'bg-gray-400'
+          - var stockDescription = 'N/A'
+          
+          - if (product.stock_status === 'negative') {
+          -   stockColorClass = 'bg-red-100'
+          -   textColorClass = 'text-red-900'
+          -   indicatorClass = 'bg-red-700'
+          -   stockDescription = 'Existencia negativa'
+          - } else if (product.stock_status === 'critical') {
+          -   stockColorClass = 'bg-red-50'
+          -   textColorClass = 'text-red-800'
+          -   indicatorClass = 'bg-red-500'
+          -   stockDescription = product.stock_sugerido === 0 ? 'Definir stock sugerido' : product.stock_percentage + '% del stock sugerido'
+          - } else if (product.stock_status === 'low') {
+          -   stockColorClass = 'bg-orange-50'
+          -   textColorClass = 'text-orange-800'
+          -   indicatorClass = 'bg-orange-500'
+          -   stockDescription = product.stock_percentage + '% del stock sugerido'
+          - } else if (product.stock_status === 'medium') {
+          -   stockColorClass = 'bg-yellow-50'
+          -   textColorClass = 'text-yellow-800'
+          -   indicatorClass = 'bg-yellow-500'
+          -   stockDescription = product.stock_percentage + '% del stock sugerido'
+          - } else if (product.stock_status === 'good') {
+          -   stockColorClass = 'bg-green-50'
+          -   textColorClass = 'text-green-800'
+          -   indicatorClass = 'bg-green-500'
+          -   stockDescription = product.stock_percentage + '% del stock sugerido'
+          - }
+
+          div(class="bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200 cursor-pointer product-card" data-product-id=product.id_producto_generico)
+            .p-6
+              .flex.items-center.justify-between
+                //- Información del producto
+                .flex-1
+                  .flex.items-center.mb-2
+                    div(class=`w-4 h-4 rounded-full mr-3 ${indicatorClass}` title=stockDescription)
+                    h3.text-lg.font-semibold.text-gray-900= product.producto_generico
+                  
+                  //- 🔥 GRID ACTUALIZADO CON AMBAS EXISTENCIAS
+                  .div(class="grid grid-cols-1 md:grid-cols-5 gap-4 text-sm text-gray-600")
+                    .space-y-1
+                      .font-medium Partida:
+                      .text-gray-900 #{product.clave_objeto_del_gasto}
+                      .text-gray-700= product.partida
+                    
+                    //- 🔥 EXISTENCIA DE ALMACÉN GENERAL
+                    .space-y-1
+                      .font-medium Existencias de no oficialía:
+                      div(class="cursor-pointer hover:bg-blue-50 p-2 rounded transition-colors" 
+                           title="Click para ver detalles del almacén general")
+                        span.text-lg.font-bold.text-blue-800= product.existencia_almacen_general || 0
+                        span.ml-1.text-xs.text-blue-600 Pieza(s)
+                    
+                    //- 🔥 EXISTENCIA DE OFICIALÍA
+                    .space-y-1
+                      .font-medium Existencia de oficialía:
+                      div(class="cursor-pointer hover:bg-purple-50 p-2 rounded transition-colors"
+                           title="Click para ver detalles de oficialía")
+                        span.text-lg.font-bold.text-purple-800= product.existencia_oficialia || 0
+                        span.ml-1.text-xs.text-purple-600 Pieza(s)
+                    
+                    //- 🔥 EXISTENCIA TOTAL
+                    .space-y-1
+                      .font-medium Total:
+                      div(class=textColorClass)
+                        span.text-lg.font-bold= product.existencia_total || 0
+                        span.ml-1.text-xs Pieza(s)
+                      //div(class=`text-xs ${textColorClass}`)= stockDescription
+                    
+                    //- 🔥 PROGRESO VS STOCK SUGERIDO
+                    .space-y-1
+                      if product.stock_sugerido > 0
+                        .font-medium Almacen general:
+                        .w-full.bg-gray-200.rounded-full.h-2
+                          - var progressWidth = Math.min(100, ((product.existencia_almacen_general || 0) / product.stock_sugerido) * 100)
+                          - var progressColor = product.stock_status === 'critical' ? 'bg-red-500' : product.stock_status === 'low' ? 'bg-orange-500' : product.stock_status === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                          div(class=`h-2 rounded-full ${progressColor}` style=`width: ${progressWidth}%`)
+                        .flex.justify-between.text-xs.text-gray-500
+                          span= Math.round(((product.existencia_almacen_general || 0) / product.stock_sugerido) * 100) + '%'
+                          span Meta: #{product.stock_sugerido}
+                      else
+                        .font-medium.text-red-600 ⚠️ Sin stock sugerido
+                        .text-xs.text-red-500 Define meta para ver progreso
+
+                //- Flecha para indicar que es clickeable
+                .flex-shrink-0.ml-4
+                  svg.h-5.w-5.text-gray-400(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                    path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M9 5l7 7-7 7")
+
+      //- Loading indicator
+      #loadingIndicator.hidden.text-center.py-8
+        .inline-flex.items-center.px-4.py-2.font-semibold.leading-6.text-sm.shadow.rounded-md.text-blue-500.bg-blue-100.transition.ease-in-out.duration-150
+          svg.animate-spin.-ml-1.mr-3.h-5.w-5.text-blue-500(fill="none", viewBox="0 0 24 24")
+            circle.opacity-25(cx="12", cy="12", r="10", stroke="currentColor", stroke-width="4")
+            path.opacity-75(fill="currentColor", d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z")
+          | Cargando más productos...
+
+      //- Mensaje cuando no hay más productos
+      #noMoreProducts.hidden.text-center.py-8.text-gray-500
+        p No hay más productos para mostrar
+
+      //- Mensaje cuando no hay productos
+      if products.length === 0
+        .text-center.py-12
+          svg.mx-auto.h-12.w-12.text-gray-400(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+            path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-8v2m0 0V5a2 2 0 00-2-2H9a2 2 0 00-2 2v2m0 0h10")
+          h3.mt-2.text-sm.font-medium.text-gray-900 No se encontraron productos
+          p.mt-1.text-sm.text-gray-500 No hay productos que coincidan con los filtros aplicados.
+
+  //- 🔥 SCRIPT ACTUALIZADO
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      // Variables para scroll infinito
+      let currentPage = parseInt('#{pagination.paginaActual}') || 1; // CORREGIDO: usar paginaActual
+      let isLoading = false;
+      let hasMore = currentPage < parseInt('#{pagination.totalPaginas}') || false; // CORREGIDO: calcular hasMore correctamente
+      
+      const productsContainer = document.getElementById('productsContainer');
+      const loadingIndicator = document.getElementById('loadingIndicator');
+      const noMoreProducts = document.getElementById('noMoreProducts');
+      
+      // Función para cargar más productos
+      async function loadMoreProducts() {
+        if (isLoading || !hasMore) return;
+        
+        isLoading = true;
+        loadingIndicator.classList.remove('hidden');
+        
+        try {
+          const urlParams = new URLSearchParams(window.location.search);
+          urlParams.set('pagina', currentPage + 1); // CORREGIDO: usar 'pagina' en lugar de 'page'
+          
+          const response = await fetch(`/inventario/api/products?${urlParams.toString()}`);
+          const data = await response.json();
+          
+          if (data.success && data.products.length > 0) {
+            data.products.forEach(product => {
+              const productCard = createProductCard(product);
+              productsContainer.appendChild(productCard);
+            });
+            
+            currentPage = data.pagination.paginaActual; // CORREGIDO: usar paginaActual
+            hasMore = currentPage < data.pagination.totalPaginas; // CORREGIDO: calcular hasMore correctamente
+            
+            if (!hasMore) {
+              noMoreProducts.classList.remove('hidden');
+            }
+          } else {
+            hasMore = false;
+            noMoreProducts.classList.remove('hidden');
+          }
+        } catch (error) {
+          console.error('Error al cargar productos:', error);
+          hasMore = false;
+        } finally {
+          isLoading = false;
+          loadingIndicator.classList.add('hidden');
+        }
+      }
+      
+      // Función para crear cards de productos (sin cambios)
+      function createProductCard(product) {
+        const card = document.createElement('div');
+        
+        // Determinar clases de color según stock
+        let indicatorClass = 'bg-gray-400';
+        let textColorClass = 'text-gray-800';
+        
+        switch(product.stock_status) {
+          case 'negative':
+            textColorClass = 'text-red-900';
+            indicatorClass = 'bg-red-700';
+            break;
+          case 'critical':
+            textColorClass = 'text-red-800';
+            indicatorClass = 'bg-red-500';
+            break;
+          case 'low':
+            textColorClass = 'text-orange-800';
+            indicatorClass = 'bg-orange-500';
+            break;
+          case 'medium':
+            textColorClass = 'text-yellow-800';
+            indicatorClass = 'bg-yellow-500';
+            break;
+          case 'good':
+            textColorClass = 'text-green-800';
+            indicatorClass = 'bg-green-500';
+            break;
+        }
+        
+        const stockDescription = product.stock_description || 
+          (product.stock_sugerido === 0 ? 'Definir stock sugerido' : 
+          product.stock_sugerido > 0 ? `${Math.round(((product.existencia_almacen_general || 0) / product.stock_sugerido) * 100)}% del stock sugerido` : 
+          'N/A');
+        
+        card.className = 'bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200 cursor-pointer product-card';
+        card.setAttribute('data-product-id', product.id_producto_generico);
+        
+        card.innerHTML = `
+          <div class="p-6">
+            <div class="flex items-center justify-between">
+              <div class="flex-1">
+                <div class="flex items-center mb-2">
+                  <div class="w-4 h-4 rounded-full mr-3 ${indicatorClass}" title="${stockDescription}"></div>
+                  <h3 class="text-lg font-semibold text-gray-900">${product.producto_generico}</h3>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 text-sm text-gray-600">
+                  <div class="space-y-1">
+                    <div class="font-medium">Partida:</div>
+                    <div class="text-gray-900">${product.clave_objeto_del_gasto}</div>
+                    <div class="text-gray-700">${product.partida}</div>
+                  </div>
+                  
+                  <div class="space-y-1">
+                    <div class="font-medium">Existencias de no oficialía:</div>
+                    <div class="cursor-pointer hover:bg-blue-50 p-2 rounded transition-colors" title="Click para ver detalles del almacén general">
+                      <span class="text-lg font-bold text-blue-800">${product.existencia_almacen_general || 0}</span>
+                      <span class="ml-1 text-xs text-blue-600">Pieza(s)</span>
+                    </div>
+                  </div>
+                  
+                  <div class="space-y-1">
+                    <div class="font-medium">Existencia de oficialía:</div>
+                    <div class="cursor-pointer hover:bg-purple-50 p-2 rounded transition-colors" title="Click para ver detalles de oficialía">
+                      <span class="text-lg font-bold text-purple-800">${product.existencia_oficialia || 0}</span>
+                      <span class="ml-1 text-xs text-purple-600">Pieza(s)</span>
+                    </div>
+                  </div>
+                  
+                  <div class="space-y-1">
+                    <div class="font-medium">Total:</div>
+                    <div class="${textColorClass}">
+                      <span class="text-lg font-bold">${product.existencia_total || 0}</span>
+                      <span class="ml-1 text-xs">Pieza(s)</span>
+                    </div>
+                  </div>
+                  
+                  ${product.stock_sugerido > 0 ? `
+                  <div class="space-y-1">
+                    <div class="font-medium">Almacén general:</div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                      <div class="h-2 rounded-full ${
+                        product.stock_status === 'critical' ? 'bg-red-500' :
+                        product.stock_status === 'low' ? 'bg-orange-500' :
+                        product.stock_status === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                      }" style="width: ${Math.min(100, ((product.existencia_almacen_general || 0) / product.stock_sugerido) * 100)}%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500">
+                      <span>${Math.round(((product.existencia_almacen_general || 0) / product.stock_sugerido) * 100)}%</span>
+                      <span>Meta: ${product.stock_sugerido}</span>
+                    </div>
+                  </div>
+                  ` : `
+                  <div class="space-y-1">
+                    <div class="font-medium text-red-600">⚠️ Sin stock sugerido</div>
+                    <div class="text-xs text-red-500">Define meta para ver progreso</div>
+                  </div>
+                  `}
+                </div>
+              </div>
+              
+              <div class="flex-shrink-0 ml-4">
+                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        // Agregar evento click
+        card.addEventListener('click', function() {
+          window.location.href = `/inventario/product/${product.id_producto_generico}`;
+        });
+        
+        return card;
+      }
+      
+      // Scroll infinito
+      let timeoutId;
+      window.addEventListener('scroll', function() {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(function() {
+          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          const windowHeight = window.innerHeight;
+          const documentHeight = document.documentElement.offsetHeight;
+          
+          if (scrollTop + windowHeight >= documentHeight - 200) {
+            loadMoreProducts();
+          }
+        }, 100);
+      });
+      
+      // Event listeners para navegación a detalles
+      const existingProductCards = document.querySelectorAll('.product-card');
+      existingProductCards.forEach(card => {
+        card.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          const productId = this.getAttribute('data-product-id');
+          if (productId) {
+            window.location.href = `/inventario/product/${productId}`;
+          }
+        });
+      });
+
+      // FORMULARIO DE FILTROS - SIN AUTO-SUBMIT EN ENTER
+      const filterForm = document.getElementById('filterForm');
+      if (filterForm) {
+        // Prevenir auto-submit en campos de texto al presionar Enter
+        filterForm.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            return false;
+          }
+        });
+      }
+
+      /// SIDEBAR FUNCTIONALITY 
+      const sidebar = document.getElementById('sidebar');
+      const sidebarToggle = document.getElementById('sidebarToggle');
+      const sidebarOverlay = document.getElementById('sidebarOverlay');
+      const closeSidebar = document.getElementById('closeSidebar');
+
+      let sidebarOpen = false;
+
+      // Función para abrir el sidebar
+      function openSidebar() {
+        sidebarOpen = true;
+        sidebar.classList.remove('-translate-x-full');
+        sidebar.classList.add('translate-x-0');
+        sidebarOverlay.classList.remove('hidden');
+        
+        // Animar el ícono del toggle
+        const icon = sidebarToggle.querySelector('svg');
+        icon.style.transform = 'rotate(90deg)';
+        icon.style.transition = 'transform 0.3s ease-in-out';
+        
+        // Prevenir scroll del body en móvil
+        if (window.innerWidth < 1024) {
+          document.body.style.overflow = 'hidden';
+        }
+      }
+
+      // Función para cerrar el sidebar
+      function closeSidebarFunc() {
+        sidebarOpen = false;
+        sidebar.classList.add('-translate-x-full');
+        sidebar.classList.remove('translate-x-0');
+        sidebarOverlay.classList.add('hidden');
+        
+        // Restaurar el ícono del toggle
+        const icon = sidebarToggle.querySelector('svg');
+        icon.style.transform = 'rotate(0deg)';
+        
+        // Restaurar scroll del body
+        document.body.style.overflow = '';
+      }
+
+      // Toggle del sidebar (hamburguesa)
+      if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+          console.log('Sidebar toggle clicked');
+          
+          if (sidebarOpen) {
+            closeSidebarFunc();
+          } else {
+            openSidebar();
+          }
+        });
+      }
+
+      // Cerrar sidebar (botón X)
+      if (closeSidebar) {
+        closeSidebar.addEventListener('click', closeSidebarFunc);
+      }
+
+      // Cerrar sidebar al hacer click en el overlay
+      if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', closeSidebarFunc);
+      }
+
+      // Cerrar sidebar con tecla Escape
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && sidebarOpen) {
+          closeSidebarFunc();
+        }
+      });
+
+      // Manejar resize de ventana
+      window.addEventListener('resize', function() {
+        if (window.innerWidth >= 1024) {
+          // En desktop, restaurar estado normal
+          document.body.style.overflow = '';
+          sidebarOverlay.classList.add('hidden');
+          
+          // Mantener el sidebar visible en desktop
+          sidebar.classList.remove('-translate-x-full');
+          sidebar.classList.add('translate-x-0');
+        } else if (sidebarOpen) {
+          // En móvil, mantener lógica de open/close
+          document.body.style.overflow = 'hidden';
+        }
+      });
+
+      // Destacar enlace activo en el sidebar
+      const currentPath = window.location.pathname;
+      const sidebarLinks = document.querySelectorAll('.sidebar-link');
+
+      sidebarLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        
+        // Si el enlace coincide exactamente con la ruta actual
+        if (href === currentPath) {
+          // Remover clases de estado normal
+          link.classList.remove('text-gray-700', 'hover:bg-gray-100', 'hover:text-gray-900');
+          
+          // Agregar clases de estado activo
+          link.classList.add('text-emerald-700', 'bg-emerald-50');
+          
+          // Cambiar color del ícono
+          const icon = link.querySelector('svg');
+          if (icon) {
+            icon.classList.remove('text-gray-400');
+            icon.classList.add('text-emerald-500');
+          }
+        }
+      });
+    });

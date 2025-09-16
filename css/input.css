@@ -1,0 +1,45 @@
+    /* src/input.css */
+@import "tailwindcss";
+
+/* Estilos personalizados para el sidebar */
+#sidebarOverlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+#sidebar {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Asegurar que el overlay esté oculto por defecto */
+#sidebarOverlay.hidden {
+  display: none !important;
+}
+
+/* Media queries para escritorio */
+@media (min-width: 1024px) {
+  #sidebar {
+    position: static !important;
+    transform: translateX(0) !important;
+    box-shadow: none !important;
+    z-index: auto !important;
+  }
+  
+  #sidebarOverlay {
+    display: none !important;
+  }
+}
+
+/* Prevenir scroll del body cuando el sidebar está abierto en móvil */
+body.sidebar-open {
+  overflow: hidden;
+}
+
+/* Transiciones suaves */
+#sidebar {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#sidebarOverlay {
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}

@@ -1,0 +1,213 @@
+//- ========================================
+//- VIEWS/EXIT-TICKET/CREATE.PUG
+//- ========================================
+
+extends ../../layouts/main
+
+block content
+  div(data-sistema-activo=sistema)
+  .min-h-screen(
+    data-sistema-activo=sistema
+    class=esAlmacenGeneral ? 'bg-gradient-to-b from-stone-700 to-grey-50' : 'bg-gradient-to-b from-gray-50 to-gray-50'
+  )
+    //- Header
+    header.bg-white.shadow
+      div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8")
+        .flex.justify-between.items-center.py-6
+          .flex.items-center.space-x-4
+            a(class="mr-4 text-pink-600 hover:text-pink-800" href="/inventario/general")
+              svg.h-6.w-6(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M10 19l-7-7m0 0l7-7m-7 7h18")
+            
+            svg.h-8.w-8.text-emerald-600.mr-3(fill="currentColor", viewBox="0 0 20 20")
+              path(fill-rule="evenodd", d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zM8 6a2 2 0 114 0v1H8V6zM6 9a1 1 0 012 0v2a1 1 0 11-2 0V9zm8 0a1 1 0 012 0v2a1 1 0 11-2 0V9z", clip-rule="evenodd")
+            
+            if sistema === 'OFICIALIA'
+              h1.text-2xl.font-bold.text-black-900 Nuevo Vale de Salida 
+            else
+              h1.text-2xl.font-bold.text-black-900 Nuevo Vale de Salida - Almacén interno
+
+    //- Formulario principal
+    div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6")
+      
+    
+      form#entryTicketForm(action="/exit-ticket/general/create", method="POST")
+
+        
+        //- Sección 1: Información General
+        .bg-white.rounded-lg.shadow.p-6.mb-6
+          h2.text-xl.font-semibold.text-gray-900.mb-6 Información General
+          
+          div(class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6")
+            //- Folio (automático)
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700 Folio
+              input(
+                type="text"
+                value="Se asignará automáticamente"
+                disabled
+                class="block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm text-gray-500 sm:text-sm"
+              )
+
+            //- Fecha de salida (automática)
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700 Fecha de Salida
+              input(
+                type="text"
+                id="fechaSalida"
+                disabled
+                class="block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm text-gray-500 sm:text-sm"
+              )
+
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="numeroFactura") Número de Factura
+              input(
+                type="text"
+                id="numeroFactura"
+                name="numero_de_factura"
+                placeholder="Ej: FAC-2024-001"
+                maxlength="50"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+              )
+
+            div.mb-4.relative
+              label.block.text-sm.font-medium.text-gray-700(for="proveedorSearch") Proveedor *
+              input#proveedorSearch(
+                type="text"
+                placeholder="Buscar proveedor..."
+                autocomplete="off"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+              )
+              //- Contenedor para las sugerencias (lo rellena exit-ticket.js)
+              .proveedor-suggestions.absolute.z-10.w-full.bg-white.border.border-gray-300.rounded-md.shadow-lg.mt-1.hidden.max-h-60.overflow-y-auto
+
+              //- Input oculto que guarda el id_proveedor
+              input#selectedProveedorId(type="hidden" name="id_proveedor")
+          //- Área destino
+          .space-y-1.mt-6
+            label.block.text-sm.font-medium.text-gray-700(for="area") Área Destino *
+            select(
+              id="area"
+              name="id_area"
+              required
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+            )
+              option(value="") Seleccionar área
+              each area in areas
+                option(value=area.id_area) #{area.area_display}
+
+          
+          //- Requisición de Salida
+          .space-y-1.mt-6
+            label.block.text-sm.font-medium.text-gray-700(for="requisicion") Requisición de Salida
+            .relative
+              input(
+                type="text"
+                id="requisicion"
+                name="requisicion_de_salida"
+                placeholder="Escribir o seleccionar requisición..."
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                list="requisicionesList"
+              )
+              datalist#requisicionesList
+                each req in requisiciones
+                  option(value=req.requisicion_salida)
+
+        //- Sección 2: Empleados
+        .bg-white.rounded-lg.shadow.p-6.mb-6
+          h2.text-xl.font-semibold.text-gray-900.mb-6 Empleados
+          
+          div(class="grid grid-cols-1 md:grid-cols-2 gap-6")
+            //- Empleado que entrega
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700 Entrega
+              input(
+                type="text"
+                value=user.nombres + ' ' + user.apellidos + ' (Usuario actual)'
+                disabled
+                class="block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm text-gray-500 sm:text-sm"
+              )
+              input(type="hidden", name="id_empleado_entrega", value=user.id)
+
+            //- Empleado que recibe
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="empleadoRecibe") Empleado que Recibe *
+              select(
+                id="empleadoRecibe"
+                name="id_empleado_recibe"
+                required
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+              )
+                option(value="") Seleccionar empleado que recibe
+                each empleado in allEmpleados
+                  option(value=empleado.id_empleado) #{empleado.nombre_completo}#{empleado.cargo ? ` - ${empleado.cargo}` : ''}
+
+        //- Sección 3: Productos
+        .bg-white.rounded-lg.shadow.p-6.mb-6
+          .flex.justify-between.items-center.mb-6
+            if sistema === 'OFICIALIA'
+              h2.text-xl.font-semibold.text-black-900 Productos 
+            else
+              h2.text-xl.font-semibold.text-black-900 Productos 
+            
+            button(
+              type="button"
+              id="btnAgregarProducto"
+              class="flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+            )
+              svg.h-4.w-4.mr-2(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M12 6v6m0 0v6m0-6h6m-6 0H6")
+              | Agregar Producto
+
+          //- Lista de productos agregados
+          #listaProductos.space-y-4
+
+        //- Sección 4: Observaciones y Estatus
+        .bg-white.rounded-lg.shadow.p-6.mb-6
+          h2.text-xl.font-semibold.text-gray-900.mb-6 Observaciones y Estatus
+          
+          div(class="grid grid-cols-1 md:grid-cols-2 gap-6")
+            //- Observaciones
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="observaciones") Observaciones
+              textarea(
+                id="observaciones"
+                name="observaciones"
+                rows="4"
+                placeholder="Observaciones adicionales..."
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+              )
+
+            //- Estatus de Captura
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="estatus") Estatus de Captura *
+              select(
+                id="estatus"
+                name="id_estatus_de_captura"
+                required
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+              )
+                option(value="") Seleccionar estatus
+                each estatus in estatusCaptura
+                  option(value=estatus.id_estatus_de_captura)= estatus.estatus_de_captura
+
+        //- Botones de acción
+        .flex.justify-begin.space-x-4
+          a(
+            href="/inventario"
+            class="px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          )
+            | Cancelar
+          
+          if sistema === 'OFICIALIA'
+            button(
+              type="submit"
+              class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            )
+              | Crear Vale de Salida
+          else
+            button(
+              type="submit"
+              class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            )
+              | Crear Vale de Salida (Almacén INTERNO)

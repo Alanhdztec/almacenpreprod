@@ -1,0 +1,229 @@
+//- ========================================
+//- VIEWS/EXIT-TICKET/DETAILS.PUG
+//- ========================================
+
+extends ../layouts/main
+
+block content
+  .min-h-screen.bg-gray-50
+    //- Header
+    header.bg-white.shadow
+      div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8")
+        .flex.justify-between.items-center.py-6
+          .flex.items-center.space-x-4
+            a(class="mr-4 text-pink-600 hover:text-pink-800" href="/exit-ticket/history")
+              svg.h-6.w-6(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M10 19l-7-7m0 0l7-7m-7 7h18")
+            
+            svg.h-8.w-8.text-emerald-600.mr-3(fill="currentColor", viewBox="0 0 20 20")
+              path(fill-rule="evenodd", d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zM8 6a2 2 0 114 0v1H8V6zM6 9a1 1 0 012 0v2a1 1 0 11-2 0V9zm8 0a1 1 0 012 0v2a1 1 0 11-2 0V9z", clip-rule="evenodd")
+            h1.text-2xl.font-bold.text-gray-900 Vale de Salida #{vale.id_vale_de_salida}
+
+    div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6")
+      div(class="grid grid-cols-1 lg:grid-cols-3 gap-6")
+        
+        //- Columna principal (2/3)
+        div(class="lg:col-span-2 space-y-6")
+          
+          //- Información general
+          .bg-white.rounded-lg.shadow.p-6
+            .flex.items-center.justify-between.mb-6
+              h2.text-xl.font-semibold.text-gray-900 Información General
+              span.px-3.py-1.text-sm.font-medium.rounded-full(class=vale.es_oficialia ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800')
+                = vale.tipo_almacen
+            
+            div(class="grid grid-cols-1 md:grid-cols-2 gap-6")
+              .space-y-4
+                .space-y-1
+                  .text-sm.font-medium.text-gray-500 Fecha de Salida
+                  .text-lg.text-gray-900= new Date(vale.fecha_salida).toLocaleString('es-MX')
+                
+                if vale.requisicion_de_salida
+                  .space-y-1
+                    .text-sm.font-medium.text-gray-500 Requisición
+                    .text-gray-900.font-mono= vale.requisicion_de_salida
+                
+                if vale.area_completa
+                  .space-y-1
+                    .text-sm.font-medium.text-gray-500 Área Destino
+                    .text-gray-900= vale.area_completa
+
+              .space-y-4
+                if vale.empleado_entrega_completo
+                  .space-y-1
+                    .text-sm.font-medium.text-gray-500 Empleado que Entrega
+                    .text-gray-900= vale.empleado_entrega_completo
+                
+                if vale.empleado_recibe_completo
+                  .space-y-1
+                    .text-sm.font-medium.text-gray-500 Empleado que Recibe
+                    .text-gray-900= vale.empleado_recibe_completo
+                
+                if vale.estatus_de_captura
+                  .space-y-1
+                    .text-sm.font-medium.text-gray-500 Estatus
+                    .text-gray-900= vale.estatus_de_captura
+
+          //- Productos
+          .bg-white.rounded-lg.shadow.p-6
+            .flex.items-center.justify-between.mb-6
+              h2.text-xl.font-semibold.text-gray-900 Productos Entregados
+              .text-sm.text-gray-500= vale.productos.length + ' productos'
+            
+            .overflow-x-auto
+              table.min-w-full.divide-y.divide-gray-200
+                thead.bg-gray-50
+                  tr
+                    th.px-6.py-3.text-left.text-xs.font-medium.text-gray-500.uppercase.tracking-wider Producto
+                    th.px-6.py-3.text-left.text-xs.font-medium.text-gray-500.uppercase.tracking-wider Cantidad
+                    th.px-6.py-3.text-left.text-xs.font-medium.text-gray-500.uppercase.tracking-wider Tipo
+                    th.px-6.py-3.text-left.text-xs.font-medium.text-gray-500.uppercase.tracking-wider Nota
+                
+                tbody.bg-white.divide-y.divide-gray-200
+                  each producto in vale.productos
+                    tr(class="hover:bg-gray-50")
+                      td.px-6.py-4.whitespace-nowrap
+                        .flex.flex-col
+                          .text-sm.font-medium.text-gray-900= producto.producto_generico
+                          .text-sm.text-gray-500 Código: #{producto.codigo}
+                          if producto.cantidad_secundaria
+                            .text-xs.text-purple-600 1 #{producto.unidad_principal_abrev} = #{producto.cantidad_secundaria} #{producto.unidad_secundaria_abrev}
+                      
+                      td.px-6.py-4.whitespace-nowrap
+                        .text-sm.text-gray-900= producto.cantidad
+                        .text-xs.text-gray-500= producto.unidad_principal_abrev
+                      
+                      td.px-6.py-4.whitespace-nowrap
+                        if producto.es_merma
+                          span.px-2.py-1.text-xs.font-medium.bg-red-100.text-red-800.rounded-full Merma
+                        else
+                          span.px-2.py-1.text-xs.font-medium.bg-blue-100.text-blue-800.rounded-full Normal
+                      
+                      td.px-6.py-4
+                        if producto.nota
+                          .text-sm.text-gray-900= producto.nota
+                        else
+                          .text-sm.text-gray-400 Sin nota
+
+          //- Observaciones
+          if vale.observaciones
+            .bg-white.rounded-lg.shadow.p-6
+              h2.text-xl.font-semibold.text-gray-900.mb-4 Observaciones
+              .text-gray-700= vale.observaciones
+
+        //- Columna lateral (1/3)
+        .space-y-6
+          
+          //- Resumen de productos
+          .bg-white.rounded-lg.shadow.p-6
+            h3.text-lg.font-semibold.text-gray-900.mb-4 Resumen de Productos
+            
+            .space-y-3
+              .flex.justify-between
+                .text-sm.text-gray-600 Total de productos:
+                .text-sm.font-medium.text-gray-900= vale.productos.length
+              
+              //.flex.justify-between
+                .text-sm.text-gray-600 Unidades entregadas:
+                .text-sm.font-medium.text-gray-900= vale.productos.reduce((total, p) => total + parseInt(p.cantidad), 0)
+              
+              .flex.justify-between
+                .text-sm.text-gray-600 Productos con merma:
+                .text-sm.font-medium.text-gray-900= vale.productos.filter(p => p.es_merma).length
+              
+              //.border-t.border-gray-200.pt-3
+                .flex.justify-between
+                  .text-base.font-semibold.text-gray-900 Productos normales:
+                  .text-base.font-semibold.text-gray-900= vale.productos.filter(p => !p.es_merma).length
+
+          //- Estado del vale
+          .bg-white.rounded-lg.shadow.p-6
+            h3.text-lg.font-semibold.text-gray-900.mb-4 Estado del Vale
+            
+            .space-y-4
+              .flex.items-center.justify-between
+                .text-sm.text-gray-600 Estado:
+                span.px-2.py-1.text-xs.font-medium.rounded-full(class=vale.esta_concluida ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800')
+                  = vale.esta_concluida ? 'Concluido' : 'Pendiente'
+              
+              if vale.estatus_de_captura
+                .flex.items-center.justify-between
+                  .text-sm.text-gray-600 Estatus:
+                  .text-sm.font-medium.text-gray-900= vale.estatus_de_captura
+              
+              .flex.items-center.justify-between
+                .text-sm.text-gray-600 Tipo de Almacén:
+                .flex.items-center.space-x-1
+                  if vale.es_oficialia
+                    span 
+                  else
+                    span 
+                  .text-sm.font-medium.text-gray-900= vale.tipo_almacen
+
+          //- Información adicional
+          
+          //.bg-white.rounded-lg.shadow.p-6
+            h3.text-lg.font-semibold.text-gray-900.mb-4 Información Adicional
+            
+            .space-y-3
+              if vale.clave_area && vale.clave_subarea
+                div
+                  .text-sm.text-gray-600 Clave de Área:
+                  .text-sm.font-medium.text-gray-900= vale.clave_area + '.' + vale.clave_subarea
+              
+              div
+                .text-sm.text-gray-600 Fecha de Creación:
+                .text-sm.font-medium.text-gray-900= new Date(vale.fecha_salida).toLocaleString('es-MX')
+              
+              div
+                .text-sm.text-gray-600 Total de Productos:
+                .text-sm.font-medium.text-gray-900= vale.productos.length
+
+          //- Acciones
+        //
+          .bg-white.rounded-lg.shadow.p-6
+            h3.text-lg.font-semibold.text-gray-900.mb-4 Acciones
+            
+            .space-y-3
+              button(
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition" 
+                onclick="window.print()"
+              )
+                svg.h-4.w-4.mr-2.inline(
+                  fill="none", 
+                  stroke="currentColor", 
+                  viewBox="0 0 24 24"
+                )
+                  path(
+                    stroke-linecap="round", 
+                    stroke-linejoin="round", 
+                    stroke-width="2", 
+                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+                  )
+                | Imprimir Vale
+
+              a(
+                class="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition block text-center" 
+                href="/exit-ticket/create"
+              )
+                svg.h-4.w-4.mr-2.inline(
+                  fill="none", 
+                  stroke="currentColor", 
+                  viewBox="0 0 24 24"
+                )
+                  path(
+                    stroke-linecap="round", 
+                    stroke-linejoin="round", 
+                    stroke-width="2", 
+                    d="M12 4v16m8-8H4"
+                  )
+                | Crear Vale
+
+  //- Estilos para impresión
+  style.
+    @media print {
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      body { font-size: 12px; }
+      .shadow { box-shadow: none !important; }
+    }

@@ -1,0 +1,219 @@
+//- ========================================
+//- VIEWS/ENTRY-TICKET/DETAILS.PUG - OPTIMIZADO
+//- ========================================
+
+extends ../../layouts/main
+
+block content
+  .min-h-screen.bg-gray-50
+    //- Header ultra compacto
+    header.bg-white.shadow-sm
+      div(class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6")
+        .flex.justify-between.items-center.py-2
+          .flex.items-center.space-x-2
+            a(class="mr-2 text-pink-600 hover:text-pink-800" href="/entry-ticket/history")
+              svg.h-4.w-4(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M10 19l-7-7m0 0l7-7m-7 7h18")
+            
+            svg.h-5.w-5.text-emerald-600.mr-1(fill="currentColor", viewBox="0 0 20 20")
+              path(fill-rule="evenodd", d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z", clip-rule="evenodd")
+            h1.text-lg.font-bold.text-gray-900 Folio #{vale.id_vale_de_entrada}
+          
+          //- Acciones rápidas en header
+          //.flex.items-center.space-x-1
+            button(class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs font-medium" onclick="window.print()")
+              svg.h-3.w-3.mr-1.inline(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z")
+              | Imprimir
+            
+            a(class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs font-medium" href="/entry-ticket/create")
+              svg.h-3.w-3.mr-1.inline(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M12 6v6m0 0v6m0-6h6m-6 0H6")
+              | Nuevo
+
+    div(class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-3")
+      div(class="grid grid-cols-1 lg:grid-cols-4 gap-3")
+        
+        //- Columna principal (3/4)
+        div(class="lg:col-span-3 space-y-3")
+          
+          //- Información general ultra compacta
+          .bg-white.rounded-lg.shadow-sm.p-3
+            .flex.items-center.justify-between.mb-2
+              h2.text-base.font-semibold.text-gray-900 Información General
+              .flex.items-center.space-x-2
+                span.px-2.py-1.text-xs.font-medium.rounded-full(class=vale.es_oficialia ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800')
+                  = vale.tipo_almacen
+                span.px-2.py-1.text-xs.font-medium.rounded-full(class=vale.esta_concluida ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800')
+                  = vale.esta_concluida ? 'OK' : 'Pend.'
+            
+            //- Grid ultra compacto con 4 columnas en desktop
+            div(class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 text-xs")
+              .space-y-1
+                .font-medium.text-gray-500 Fecha
+                .text-gray-900.text-xs= new Date(vale.fecha_entrada).toLocaleString('es-MX', {day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit'})
+              
+              if vale.numero_factura
+                .space-y-1
+                  .font-medium.text-gray-500 # Factura
+                  .text-gray-900.font-mono.text-xs= vale.numero_factura
+              
+              if vale.proveedor
+                .space-y-1
+                  .font-medium.text-gray-500 Proveedor
+                  .text-gray-900.text-xs= vale.proveedor.length > 20 ? vale.proveedor.substring(0, 20) + '...' : vale.proveedor
+              
+              if vale.empleado_completo
+                .space-y-1
+                  .font-medium.text-gray-500 Recibió
+                  .text-gray-900.text-xs= vale.empleado_completo
+              
+              if vale.requisicion_de_entrada
+                .space-y-1
+                  .font-medium.text-gray-500 Requisición
+                  .text-gray-900.font-mono.text-xs= vale.requisicion_de_entrada
+              
+              if vale.tipo_de_compra
+                .space-y-1
+                  .font-medium.text-gray-500 Tipo Compra
+                  .text-gray-900.text-xs= vale.tipo_de_compra
+              
+              if vale.fecha_emision_factura
+                .space-y-1
+                  .font-medium.text-gray-500 F. Factura
+                  .text-gray-900.text-xs= new Date(vale.fecha_emision_factura).toLocaleDateString('es-MX')
+              
+              .space-y-1
+                .font-medium.text-gray-500 Total
+                .text-gray-900.font-semibold.text-xs= new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(vale.total)
+
+          //- Productos con tabla más compacta
+          .bg-white.rounded-lg.shadow-sm.p-3
+            .flex.items-center.justify-between.mb-2
+              h2.text-base.font-semibold.text-gray-900 Productos
+              .text-xs.text-gray-500= vale.productos.length + ' productos'
+            
+            .overflow-x-auto
+              table.min-w-full.divide-y.divide-gray-200.text-xs
+                thead.bg-gray-50
+                  tr
+                    th.px-2.py-1.text-left.text-xs.font-medium.text-gray-500.uppercase Producto
+                    th.px-2.py-1.text-right.text-xs.font-medium.text-gray-500.uppercase Cant.
+                    th.px-2.py-1.text-right.text-xs.font-medium.text-gray-500.uppercase P. Unit.
+                    th.px-2.py-1.text-right.text-xs.font-medium.text-gray-500.uppercase Importe
+                    th.px-2.py-1.text-left.text-xs.font-medium.text-gray-500.uppercase Nota
+                
+                tbody.bg-white.divide-y.divide-gray-200
+                  each producto in vale.productos
+                    tr(class="hover:bg-gray-50")
+                      td.px-2.py-2
+                        .flex.flex-col
+                          .text-xs.font-medium.text-gray-900.leading-tight= producto.producto_generico
+                          .text-xs.text-gray-500= producto.codigo
+                          if producto.cantidad_secundaria
+                            .text-xs.text-purple-600 1 #{producto.unidad_principal_abrev} = #{producto.cantidad_secundaria} #{producto.unidad_secundaria_abrev}
+                      
+                      td.px-2.py-2.text-right
+                        .text-xs.text-gray-900= producto.cantidad
+                        .text-xs.text-gray-500= producto.unidad_principal_abrev
+                      
+                      td.px-2.py-2.text-right
+                        .text-xs.text-gray-900= new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(producto.precio_unitario)
+                      
+                      td.px-2.py-2.text-right
+                        .text-xs.font-medium.text-gray-900= new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(producto.importe)
+                      
+                      td.px-2.py-2.text-xs
+                        if producto.nota
+                          .text-gray-900.text-xs= producto.nota.length > 30 ? producto.nota.substring(0, 30) + '...' : producto.nota
+                        else
+                          .text-gray-400 -
+                        if producto.fecha_de_caducidad
+                          .text-orange-600.text-xs Caduca: #{new Date(producto.fecha_de_caducidad).toLocaleDateString('es-MX')}
+
+          //- Observaciones compactas
+          if vale.observaciones
+            .bg-white.rounded-lg.shadow-sm.p-3
+              h2.text-base.font-semibold.text-gray-900.mb-1 Observaciones
+              .text-xs.text-gray-700= vale.observaciones
+
+        //- Columna lateral más estrecha y compacta (1/4)
+        .space-y-3
+          
+          //- Resumen financiero compacto
+          .bg-white.rounded-lg.shadow-sm.p-3
+            h3.text-sm.font-semibold.text-gray-900.mb-2 Resumen
+            
+            .space-y-1.text-xs
+              .flex.justify-between
+                .text-gray-600 Subtotal:
+                .font-medium.text-gray-900= new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(vale.subtotal)
+              
+              .flex.justify-between
+                .text-gray-600 IVA:
+                .font-medium.text-gray-900= new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(vale.iva)
+              
+              .border-t.border-gray-200.pt-1.mt-1
+                .flex.justify-between
+                  .font-semibold.text-gray-900 Total:
+                  .font-semibold.text-gray-900= new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(vale.total)
+
+          //- Información adicional compacta
+          .bg-white.rounded-lg.shadow-sm.p-3
+            h3.text-sm.font-semibold.text-gray-900.mb-2 Detalles
+            
+            .space-y-1.text-xs
+              if vale.partida
+                div
+                  .text-gray-600 Partida:
+                  .font-medium.text-gray-900.text-xs= vale.clave_objeto_del_gasto + ' - ' + vale.partida
+              
+              if vale.estatus_de_captura
+                div
+                  .text-gray-600 Estatus:
+                  .font-medium.text-gray-900= vale.estatus_de_captura
+              
+              if vale.repartidor
+                div
+                  .text-gray-600 Repartidor:
+                  .font-medium.text-gray-900= vale.repartidor
+              
+              if vale.proveedor_rfc
+                div
+                  .text-gray-600 RFC:
+                  .font-medium.text-gray-900.font-mono= vale.proveedor_rfc
+
+          //- Acciones más compactas (movidas del header)
+          //.bg-white.rounded-lg.shadow-sm.p-3
+            h3.text-sm.font-semibold.text-gray-900.mb-2 Acciones
+            
+            .space-y-2
+              a(class="w-full bg-gray-600 hover:bg-gray-700 text-white px-2 py-1.5 rounded text-xs font-medium transition block text-center" href="/entry-ticket/history")
+                svg.h-3.w-3.mr-1.inline(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                  path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2")
+                | Ver Historial
+
+          //- Archivos adjuntos compactos
+          if vale.archivos && vale.archivos.length > 0
+            .bg-white.rounded-lg.shadow-sm.p-3
+              h3.text-sm.font-semibold.text-gray-900.mb-2 Archivos
+              
+              .space-y-1
+                each archivo in vale.archivos
+                  a(class="flex items-center p-1.5 border border-gray-200 rounded hover:bg-gray-50 text-xs" href=archivo.url target="_blank")
+                    svg.h-3.w-3.text-gray-400.mr-1(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                      path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z")
+                    .text-blue-600.truncate Ver archivo
+
+  //- Estilos para impresión optimizados
+  style.
+    @media print {
+      .no-print, header, .space-y-3 > div:last-child { display: none !important; }
+      .print-only { display: block !important; }
+      body { font-size: 11px; }
+      .shadow, .shadow-sm { box-shadow: none !important; }
+      .bg-gray-50 { background: white !important; }
+      .rounded-lg { border-radius: 0 !important; }
+      .p-3 { padding: 8px !important; }
+      table { page-break-inside: avoid; }
+    }

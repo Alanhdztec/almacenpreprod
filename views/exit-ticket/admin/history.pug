@@ -1,0 +1,232 @@
+//- ========================================
+//- VIEWS/EXIT-TICKET/HISTORY.PUG
+//- ========================================
+
+extends ../layouts/main
+
+block content
+  .min-h-screen.bg-gray-50
+    //- Header
+    header.bg-white.shadow
+      div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8")
+        .flex.justify-between.items-center.py-6
+          .flex.items-center.space-x-4
+            a(class="mr-4 text-pink-600 hover:text-pink-800" href="/inventario")
+              svg.h-6.w-6(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M10 19l-7-7m0 0l7-7m-7 7h18")
+            
+            svg.h-8.w-8.text-emerald-600.mr-3(fill="currentColor", viewBox="0 0 20 20")
+              path(fill-rule="evenodd", d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zM8 6a2 2 0 114 0v1H8V6zM6 9a1 1 0 012 0v2a1 1 0 11-2 0V9zm8 0a1 1 0 012 0v2a1 1 0 11-2 0V9z", clip-rule="evenodd")
+            h1.text-2xl.font-bold.text-gray-900 Historial de Vales de Salida
+
+    //- Estadísticas principales
+    div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6")
+      div(class="grid grid-cols-1 md=grid-cols-2 lg=grid-cols-4 gap-6 mb-6")
+       
+      //- Filtros
+      .bg-white.rounded-lg.shadow.p-6.mb-6
+        h3.text-lg.font-medium.text-gray-900.mb-4 Filtros de Búsqueda
+        
+        form#filterForm(method="GET")
+          //- Primer bloque de filtros
+          div(class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4")
+            //- Fecha desde
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="fecha_desde") Fecha Desde
+              input(
+                type="date"
+                id="fecha_desde"
+                name="fecha_desde"
+                value=filters.fecha_desde
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+              )
+
+            //- Fecha hasta
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="fecha_hasta") Fecha Hasta
+              input(
+                type="date"
+                id="fecha_hasta"
+                name="fecha_hasta"
+                value=filters.fecha_hasta
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+              )
+
+            //- Área
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="area") Área Destino
+              select(
+                id="area"
+                name="area"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+              )
+                option(value="") Todas las áreas
+                each area in areas
+                  option(value=area.id_area, selected=filters.area == area.id_area)= area.descripcion_completa
+
+            //- Tipo de almacén
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="tipo_almacen") Tipo de Almacén
+              select(
+                id="tipo_almacen"
+                name="tipo_almacen"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+              )
+                option(value="") Todos los tipos
+                option(value="almacen", selected=filters.tipo_almacen == 'almacen') Almacén General
+                option(value="oficialia", selected=filters.tipo_almacen == 'oficialia') Oficialía Mayor
+
+          //- Segundo bloque de filtros
+          div(class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4")
+            //- Empleado que entrega
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="empleado_entrega") Empleado que Entrega
+              select(
+                id="empleado_entrega"
+                name="empleado_entrega"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+              )
+                option(value="") Todos los empleados
+                each emp in empleados
+                  option(value=emp.id_empleado, selected=filters.empleado_entrega == emp.id_empleado)= emp.nombre_completo
+
+            //- Empleado que recibe
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="empleado_recibe") Empleado que Recibe
+              select(
+                id="empleado_recibe"
+                name="empleado_recibe"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+              )
+                option(value="") Todos los empleados
+                each emp in empleados
+                  option(value=emp.id_empleado, selected=filters.empleado_recibe == emp.id_empleado)= emp.nombre_completo
+
+            //- Estatus
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="estatus") Estatus
+              select(
+                id="estatus"
+                name="estatus"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+              )
+                option(value="") Todos los estatus
+                each est in estatusCaptura
+                  option(value=est.id_estatus_de_captura, selected=filters.estatus == est.id_estatus_de_captura)= est.estatus_de_captura
+
+          //- Botones
+          .flex.space-x-3
+            button(
+              type="submit"
+              class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out"
+            )
+              | Filtrar
+            
+            a(
+              href="/exit-ticket/history"
+              class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out"
+            )
+              | Limpiar
+
+      //- Lista de vales
+      #valesContainer.space-y-4
+        each vale in vales
+          div(class="bg-white rounded-lg shadow hover=shadow-md transition-shadow duration-200 cursor-pointer vale-card" data-vale-id=vale.id_vale_de_salida)
+            .p-6
+              .flex.items-center.justify-between.mb-4
+                .flex.items-center.space-x-4
+              
+                  //- Información principal
+                  .flex-1.min-w-0
+                    .flex.items-center.space-x-2.mb-1
+                      h3.text-lg.font-semibold.text-gray-900 Folio #{vale.id_vale_de_salida}
+                      span.px-2.py-1.text-xs.font-medium.rounded-full(class=vale.es_oficialia ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800')
+                        = vale.tipo_almacen
+                    
+                    .flex.items-center.space-x-4.text-sm.text-gray-600
+                      span.flex.items-center
+                        svg.w-4.h-4.mr-1(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                          path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z")
+                        = new Date(vale.fecha_salida).toLocaleDateString('es-MX')
+                      
+                      if vale.area_completa
+                        span.flex.items-center
+                          svg.w-4.h-4.mr-1(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                            path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4")
+                          = vale.area_completa
+                      
+                      span.flex.items-center
+                        svg.w-4.w-4.mr-1(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                          path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4")
+                        = vale.total_productos 
+
+                //- Información adicional
+                .text-right.space-y-1
+                  .flex.items-center.space-x-2
+                    span.px-2.py-1.text-xs.font-medium.rounded-full(class=vale.esta_concluida ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800')
+                      = vale.esta_concluida ? 'Concluido' : 'Pendiente'
+                    
+                    svg.h-5.w-5.text-gray-400(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                      path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M9 5l7 7-7 7")
+
+              //- Información adicional expandible
+              div(class="grid grid-cols-1 md=grid-cols-3 gap-4 text-sm text-gray-600 pt-4 border-t border-gray-200")
+                if vale.empleado_entrega_completo
+                  .space-y-1
+                    .font-medium Entrega:
+                    .text-gray-900= vale.empleado_entrega_completo
+                
+                if vale.empleado_recibe_completo
+                  .space-y-1
+                    .font-medium Recibe:
+                    .text-gray-900= vale.empleado_recibe_completo
+                
+                if vale.estatus_de_captura
+                  .space-y-1
+                    .font-medium Estatus:
+                    .text-gray-900= vale.estatus_de_captura
+
+        //- Mensaje si no hay vales
+        if vales.length === 0
+          .text-center.py-12
+            svg.mx-auto.h-12.w-12.text-gray-400(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+              path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4")
+            h3.mt-2.text-sm.font-medium.text-gray-900 No se encontraron vales
+            p.mt-1.text-sm.text-gray-500 No hay vales de salida que coincidan con los filtros aplicados.
+
+      //- Paginación (similar al de entrada)
+      if pagination.totalPages > 1
+        div(class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm=px-6 mt-6")
+          div(class="flex flex-1 justify-between sm=hidden")
+            if pagination.currentPage > 1
+              a(href=`?page=${pagination.currentPage - 1}`, class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50") Anterior
+            if pagination.currentPage < pagination.totalPages
+              a(href=`?page=${pagination.currentPage + 1}`, class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50") Siguiente
+
+          div(class="hidden sm=flex sm=flex-1 sm=items-center sm=justify-between")
+            div
+              p.text-sm.text-gray-700
+                | Mostrando 
+                span.font-medium= ((pagination.currentPage - 1) * pagination.limit) + 1
+                |  a 
+                span.font-medium= Math.min(pagination.currentPage * pagination.limit, pagination.totalItems)
+                |  de 
+                span.font-medium= pagination.totalItems
+                |  resultados
+
+  //- JavaScript para funcionalidad
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      // Navegación a detalles al hacer click en vale
+      document.addEventListener('click', function(e) {
+        const valeCard = e.target.closest('.vale-card');
+        if (valeCard) {
+          const valeId = valeCard.getAttribute('data-vale-id');
+          if (valeId) {
+            window.location.href = `/exit-ticket/details/${valeId}`;
+          }
+        }
+      });
+
+      console.log('✅ Historial de vales de salida iniciado');
+    });

@@ -1,0 +1,232 @@
+//- ========================================
+//- VIEWS/EXIT-TICKET/GENERAL/HISTORY.PUG - HISTORIAL VALES DE SALIDA SIN AJAX
+//- ========================================
+
+extends ../../layouts/main
+
+block content
+  .min-h-screen.bg-gray-100
+    //- Header
+    header.bg-grey.shadow
+      div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8")
+        .flex.justify-content-between.items-center.py-6
+          .flex.items-center.space-x-4
+            a(class="mr-4 text-pink-600 hover:text-pink-800" href="/inventario/general")
+              svg.h-6.w-6(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M10 19l-7-7m0 0l7-7m-7 7h18")
+            
+            h1.text-2xl.font-bold.text-gray-900 Historial de Vales de Salida (almacén interno)
+
+      //- Filtros
+      .bg-white.rounded-lg.shadow.p-6.mb-6
+        h3.text-lg.font-medium.text-gray-900.mb-4 Filtros de Búsqueda
+        
+        form(method="GET" action="/exit-ticket/general/history")
+          div(class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4")
+            //- Fecha inicio
+            div(class="space-y-1")
+              label.block.text-sm.font-medium.text-gray-700(for="fecha_inicio") Fecha Inicio
+              input(
+                type="date"
+                id="fecha_inicio"
+                name="fecha_inicio"
+                value=filtros.fecha_inicio
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              )
+
+            //- Fecha fin
+            div(class="space-y-1")
+              label.block.text-sm.font-medium.text-gray-700(for="fecha_fin") Fecha Fin
+              input(
+                type="date"
+                id="fecha_fin"
+                name="fecha_fin"
+                value=filtros.fecha_fin
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              )
+
+            //- Área
+            div(class="space-y-1")
+              label.block.text-sm.font-medium.text-gray-700(for="id_area") Área
+              select(
+                id="id_area"
+                name="id_area"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              )
+                option(value="") Todas las áreas
+                each area in areas
+                  option(value=area.id_area selected=(filtros.id_area == area.id_area))= area.descripcion
+
+            //- Número de factura
+            div(class="space-y-1")
+              label.block.text-sm.font-medium.text-gray-700(for="numero_factura") Número de Factura
+              input(
+                type="text"
+                id="numero_factura"
+                name="numero_factura"
+                value=filtros.numero_factura
+                placeholder="Buscar por factura..."
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              )
+
+            //- Estatus
+            div(class="space-y-1")
+              label.block.text-sm.font-medium.text-gray-700(for="id_estatus") Estatus
+              select(
+                id="id_estatus"
+                name="id_estatus"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              )
+                option(value="") Todos los estatus
+                each estatus in estatusCaptura
+                  option(value=estatus.id_estatus_de_captura selected=(filtros.id_estatus == estatus.id_estatus_de_captura))= estatus.estatus_de_captura
+
+            //- Empleado que entrega
+            div(class="space-y-1")
+              label.block.text-sm.font-medium.text-gray-700(for="id_empleado_entrega") Empleado Entrega
+              select(
+                id="id_empleado_entrega"
+                name="id_empleado_entrega"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              )
+                option(value="") Todos los empleados
+                each empleado in empleados
+                  option(value=empleado.id_empleado selected=(filtros.id_empleado_entrega == empleado.id_empleado))= empleado.nombre_completo
+
+          //- Botones de acción
+          div(class="flex space-x-3")
+            button(
+              type="submit"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out"
+            )
+              | Buscar
+            
+            a(
+              href="/exit-ticket/general/history"
+              class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out text-decoration-none"
+            )
+              | Limpiar
+
+      //- Información de resultados
+      .bg-white.rounded-lg.shadow.p-4.mb-4
+        .flex.justify-content-between.items-center
+          h3.text-lg.font-medium.text-gray-900 Resultados
+          .bg-blue-100.text-blue-800.px-3.py-1.rounded-full.text-sm.font-medium
+            | Total: #{pagination.totalItems} vales
+
+      //- Lista de vales
+      if vales && vales.length > 0
+        .space-y-4
+          each vale in vales
+            - const fecha = new Date(vale.fecha_de_salida).toLocaleDateString('es-MX')
+            - const estatusClass = vale.estatus_de_captura === 'Capturado' ? 'bg-green-100 text-green-800' : vale.estatus_de_captura === 'En proceso' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'
+            
+            a(href=`/exit-ticket/general/history/detail/${vale.id_vale_de_salida}` class="block")
+              div(class="bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200 cursor-pointer")
+                .p-6
+                  .flex.items-center.justify-content-between.mb-4
+                    .flex.items-center.space-x-4
+                      .flex-1.min-w-0
+                        .flex.items-center.space-x-2.mb-1
+                          h3.text-lg.font-semibold.text-gray-900 Folio ##{vale.id_vale_de_salida}
+                          span.px-2.py-1.text-xs.font-medium.rounded-full.bg-red-100.text-red-800
+                            | Salida 
+                        
+                        .flex.items-center.space-x-4.text-sm.text-gray-600
+                          span.flex.items-center
+                            | #{fecha}
+                          
+                          if vale.area_descripcion
+                            span.flex.items-center
+                              | #{vale.area_descripcion}
+                          
+                          span.flex.items-center
+                            | #{vale.total_productos || 0} producto(s)
+                    
+                    .text-right.space-y-2
+                      .flex.items-center.space-x-2
+                        span(class=`px-2 py-1 text-xs font-medium rounded-full mx-4 ${estatusClass}`)
+                          | #{vale.estatus_de_captura || 'N/A'}
+                        span.text-gray-400 
+
+                  div(class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 pt-4 border_-t border-gray-200")
+                    if vale.numero_de_factura
+                      .space-y-1
+                        .font-medium Factura:
+                        .text-gray-900= vale.numero_de_factura
+                    
+                    if vale.requisicion_de_salida
+                      .space-y-1
+                        .font-medium Requisición:
+                        .text-gray-900= vale.requisicion_de_salida
+                    
+                    .space-y-1
+                      .font-medium Entrega:
+                      .text-gray-900= vale.empleado_entrega_completo || 'No especificado'
+                    
+                    if vale.empleado_recibe_completo
+                      .space-y-1
+                        .font-medium Recibe:
+                        .text-gray-900= vale.empleado_recibe_completo
+                    
+                    if vale.observaciones
+                      .space-y-1
+                        .font-medium Observaciones:
+                        .text-gray-900.text-xs= vale.observaciones.length > 50 ? vale.observaciones.substring(0, 50) + '...' : vale.observaciones
+      else
+        .text-center.py-12
+          .text-6xl.mb-4 📤
+          h3.text-lg.font-medium.text-gray-900 No se encontraron vales
+          p.text-gray-500 No hay vales de salida que coincidan con los filtros aplicados.
+
+      //- Paginación
+      if pagination.totalPages > 1
+        nav.mt-6(aria-label="Paginación del historial")
+          div(class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6")
+            div(class="flex flex-1 justify-between sm:hidden")
+              if pagination.hasPreviousPage
+                a(href=`?page=${pagination.currentPage - 1}&${new URLSearchParams(filtros).toString()}` class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50") Anterior
+              if pagination.hasNextPage
+                a(href=`?page=${pagination.currentPage + 1}&${new URLSearchParams(filtros).toString()}` class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50") Siguiente
+
+            div(class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between")
+              div
+                p.text-sm.text-gray-700
+                  | Mostrando 
+                  span.font-medium= ((pagination.currentPage - 1) * 10) + 1
+                  |  a 
+                  span.font-medium= Math.min(pagination.currentPage * 10, pagination.totalItems)
+                  |  de 
+                  span.font-medium= pagination.totalItems
+                  |  resultados
+              
+              div
+                nav.isolate.inline-flex.-space-x-px.rounded-md.shadow-sm(aria-label="Pagination")
+                  //- Página anterior
+                  if pagination.hasPreviousPage
+                    a(href=`?page=${pagination.currentPage - 1}&${new URLSearchParams(filtros).toString()}` class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50")
+                      span.sr-only Anterior
+                      | ‹
+                  
+                  //- Páginas
+                  - const startPage = Math.max(1, pagination.currentPage - 2)
+                  - const endPage = Math.min(pagination.totalPages, pagination.currentPage + 2)
+                  
+                  each pageNum in Array.from({length: endPage - startPage + 1}, (_, i) => startPage + i)
+                    if pageNum === pagination.currentPage
+                      span(class="relative z-10 inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-blue-600")= pageNum
+                    else
+                      a(href=`?page=${pageNum}&${new URLSearchParams(filtros).toString()}` class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50")= pageNum
+                  
+                  //- Página siguiente
+                  if pagination.hasNextPage
+                    a(href=`?page=${pagination.currentPage + 1}&${new URLSearchParams(filtros).toString()}` class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50")
+                      span.sr-only Siguiente
+                      | ›
+
+block scripts
+  script.
+    console.log('Historial de vales de salida cargado sin AJAX ni jQuery');
+    console.log('Vales mostrados:', #{vales ? vales.length : 0});
+    console.log('Página actual:', #{pagination.currentPage});
+    console.log('Total páginas:', #{pagination.totalPages});

@@ -1,0 +1,255 @@
+//- ========================================
+//- VIEWS/INVENTORY/DETAILS.PUG - ACTUALIZADO CON AMBAS EXISTENCIAS
+//- ========================================
+
+extends ../layouts/main
+
+block content
+  .min-h-screen.bg-gray-50
+    //- Header
+    header.bg-white.shadow
+      div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8")
+        .flex.justify-between.items-center.py-6
+          .flex.items-center
+            a(class="mr-4 text-pink-600 hover:text-pink-800" href="/inventario")
+              svg.h-6.w-6(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M10 19l-7-7m0 0l7-7m-7 7h18")
+            
+            svg.h-8.w-8.text-emerald-600.mr-3(fill="currentColor", viewBox="0 0 20 20")
+              path(fill-rule="evenodd", d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zm-2 5v5a2 2 0 002 2h12a2 2 0 002-2V9H2zm8 2a1 1 0 011 1v1.586l.293-.293a1 1 0 111.414 1.414l-2 2a1 1 0 01-1.414 0l-2-2a1 1 0 111.414-1.414L9 13.586V12a1 1 0 011-1z", clip-rule="evenodd")
+            h1.text-2xl.font-bold.text-gray-900 Detalles del Producto
+
+    //- Contenido principal
+    div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6")
+      //- Información general del producto
+      .bg-white.rounded-lg.shadow.p-6.mb-6
+        //- Función auxiliar para determinar clases de color del stock
+        - var stockColorClass = 'bg-gray-100'
+        - var textColorClass = 'text-gray-800'
+        - var indicatorClass = 'bg-gray-400'
+        - var statusText = 'Sin definir'
+        
+        - if (product.stock_status === 'negative') {
+        -   stockColorClass = 'bg-red-100'
+        -   textColorClass = 'text-red-900'
+        -   indicatorClass = 'bg-red-700'
+        -   statusText = 'Existencia Negativa'
+        - } else if (product.stock_status === 'critical') {
+        -   stockColorClass = 'bg-red-50'
+        -   textColorClass = 'text-red-800'
+        -   indicatorClass = 'bg-red-500'
+        -   statusText = 'Stock Crítico'
+        - } else if (product.stock_status === 'low') {
+        -   stockColorClass = 'bg-orange-50'
+        -   textColorClass = 'text-orange-800'
+        -   indicatorClass = 'bg-orange-500'
+        -   statusText = 'Stock Bajo'
+        - } else if (product.stock_status === 'medium') {
+        -   stockColorClass = 'bg-yellow-50'
+        -   textColorClass = 'text-yellow-800'
+        -   indicatorClass = 'bg-yellow-500'
+        -   statusText = 'Stock Medio'
+        - } else if (product.stock_status === 'good') {
+        -   stockColorClass = 'bg-green-50'
+        -   textColorClass = 'text-green-800'
+        -   indicatorClass = 'bg-green-500'
+        -   statusText = 'Stock Bueno'
+        - }
+
+        .flex.items-center.mb-6
+          div(class=`w-6 h-6 rounded-full mr-4 ${indicatorClass}`)
+          h2.text-3xl.font-bold.text-gray-900= product.producto_generico
+          //- ID del producto genérico
+          .ml-3.px-3.py-1.bg-gray-100.text-gray-600.text-sm.font-medium.rounded-full
+            | ID: #{product.id_producto_generico}
+
+        div(class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-2")
+
+          //- Partida presupuestal
+          .p-6.bg-emerald-50.rounded-lg
+            .flex.items-center.mb-2
+              svg.h-6.w-6.text-emerald-600.mr-2(fill="currentColor" viewBox="0 0 20 20")
+                path(fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd")
+              .text-sm.font-medium.text-emerald-600 Partida Presupuestal
+            .text-2xl.font-bold.text-emerald-800= product.clave_objeto_del_gasto
+            .text-sm.text-emerald-600= product.partida
+
+          //-EXISTENCIA ALMACÉN GENERAL
+          .p-6.bg-blue-50.rounded-lg
+            .flex.items-center.mb-2
+             
+              .text-sm.font-medium.text-blue-600 Almacén General
+            .text-4xl.font-bold.text-blue-800= product.existencia_almacen_general || 0
+            .text-sm.text-blue-600 unidades disponibles
+            .text-xs.mt-2.text-blue-700 Almacén principal
+
+          //- EXISTENCIA OFICIALÍA
+          .p-6.bg-purple-50.rounded-lg
+            .flex.items-center.mb-2
+   
+              .text-sm.font-medium.text-pink-600 Oficialía Mayor
+            .text-4xl.font-bold.text-pink-800= product.existencia_oficialia || 0
+            .text-sm.text-pink-600 unidades disponibles
+            .text-xs.mt-2.text-pink-700 Oficialía mayor
+
+    
+
+      //- 🔥 Sección de resumen por almacén
+      .bg-white.rounded-lg.shadow.p-6.mb-6
+        h3.text-xl.font-semibold.text-gray-900.mb-4 Resumen por Almacén
+        
+        div(class="grid grid-cols-1 md:grid-cols-2 gap-6")
+          //- Almacén General - Detalles
+          .border.border-blue-200.rounded-lg.p-4.bg-blue-50
+            .flex.items-center.justify-between.mb-3
+              .flex.items-center
+                .w-4.h-4.bg-blue-500.rounded-full.mr-3
+                h4.text-lg.font-semibold.text-blue-800 Almacén General
+              .text-2xl.font-bold.text-blue-800= product.existencia_almacen_general || 0
+            
+            .space-y-2.text-sm.text-blue-700
+              if product.stock_sugerido > 0
+                .flex.justify-between
+                  span % del stock:
+                  span.font-semibold= Math.round((product.existencia_almacen_general / product.stock_sugerido) * 100) + '%'
+          
+          //- Oficialía - Detalles  
+          .border.border-pink-200.rounded-lg.p-4.bg-pink-50
+            .flex.items-center.justify-between.mb-3
+              .flex.items-center
+                .w-4.h-4.bg-pink-500.rounded-full.mr-3
+                h4.text-lg.font-semibold.text-pink-800 Oficialía Mayor
+              .text-2xl.font-bold.text-pink-800= product.existencia_oficialia || 0
+            
+            //.space-y-2.text-sm.text-purple-700
+              .flex.justify-between
+                span Porcentaje del total:
+                span.font-semibold
+                  if product.existencia_total > 0
+                    = Math.round((product.existencia_oficialia / product.existencia_total) * 100) + '%'
+                  else
+                    | 0%
+              
+              if product.stock_sugerido > 0
+                .flex.justify-between
+                  span Vs. meta de stock:
+                  span.font-semibold= Math.round((product.existencia_oficialia / product.stock_sugerido) * 100) + '%'
+
+      //- Presentaciones del producto
+      .bg-white.rounded-lg.shadow.p-6.mb-6
+        .flex.items-center.justify-between.mb-6
+          h3.text-xl.font-semibold.text-gray-900 Presentaciones 
+          .text-sm.text-gray-500= `${product.presentaciones ? product.presentaciones.length : 0} presentación(es) registrada(s)`
+        
+        if product.presentaciones && product.presentaciones.length > 0
+          div(class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6")
+            each presentacion in product.presentaciones
+              div(class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-200 hover:border-blue-300")
+                //- Header de la presentación
+                .flex.items-center.justify-between.mb-4
+                  .px-2.py-1.bg-indigo-100.text-indigo-800.text-xs.font-medium.rounded-full
+                    |ID: #{presentacion.id_producto}
+
+                //- Información de unidades
+                .space-y-3.mb-4
+                  //- Unidad principal
+                  .flex.items-center.justify-between.p-3.bg-gray-50.rounded-lg
+                    .flex.items-center
+                      svg.h-4.w-4.text-gray-600.mr-2(fill="currentColor" viewBox="0 0 20 20")
+                        path(d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z")
+                      span.text-sm.font-medium.text-gray-700 Unidad Principal:
+                    span.font-semibold.text-gray-900 #{presentacion.unidad_principal} (#{presentacion.unidad_principal_abrev})
+                  
+                  //- Contiene (SIEMPRE mostrar)
+                  .flex.items-center.justify-between.p-3.bg-blue-50.rounded-lg
+                    .flex.items-center
+                      svg.h-4.w-4.text-blue-600.mr-2(fill="currentColor" viewBox="0 0 20 20")
+                        path(d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z")
+                      span.text-sm.font-medium.text-blue-700 Contiene:
+                    span.font-semibold.text-blue-900
+                      if presentacion.cantidad_secundaria && presentacion.unidad_secundaria
+                        | #{presentacion.cantidad_secundaria} #{presentacion.unidad_secundaria_abrev}
+                      else
+                        | 1 Pieza(s)
+
+              
+                
+        else
+          //- Mensaje cuando no hay presentaciones
+          .text-center.py-12.text-gray-500
+            svg.mx-auto.h-16.w-16.text-gray-400.mb-4(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+              path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-8v2m0 0V5a2 2 0 00-2-2H9a2 2 0 00-2 2v2m0 0h10")
+            h4.text-xl.font-medium.text-gray-900.mb-2 Sin presentaciones registradas
+            p.text-sm.mb-4 No hay presentaciones específicas configuradas para este producto genérico.
+            .text-xs.text-gray-400
+              | Las presentaciones permiten manejar diferentes códigos, unidades y conversiones
+              br
+              | para el mismo producto (ej: individual, por caja, por reja, etc.)
+
+      //- Estadísticas de movimientos
+      if statistics
+        .mt-6.bg-white.rounded-lg.shadow.p-6.mb-6
+          h3.text-xl.font-semibold.text-gray-900.mb-4 Estadísticas de Movimientos
+          div(class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4")
+          
+            .text-center.p-4.bg-yellow-50.rounded-lg
+              .text-sm.font-medium.text-yellow-800 Última Entrada
+              .text-xs.text-yellow-600
+                if statistics.ultima_entrada
+                  = new Date(statistics.ultima_entrada).toLocaleDateString('es-MX')
+                else
+                  | Sin registros
+                  
+            .text-center.p-4.bg-orange-50.rounded-lg
+              .text-sm.font-medium.text-orange-800 Última Salida
+              .text-xs.text-orange-600
+                if statistics.ultima_salida
+                  = new Date(statistics.ultima_salida).toLocaleDateString('es-MX')
+                else
+                  | Sin registros
+
+  //- Script para funcionalidad adicional
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      // Efecto hover para las cards de presentaciones
+      const presentationCards = document.querySelectorAll('.border-gray-200');
+      
+      presentationCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+          this.classList.add('transform', 'scale-105');
+        });
+        
+        card.addEventListener('mouseleave', function() {
+          this.classList.remove('transform', 'scale-105');
+        });
+      });
+      
+      // Función para actualizar estadísticas (para uso futuro con AJAX)
+      window.updateStatistics = function() {
+        const productId = '#{product.id_producto_generico}';
+        fetch(`/inventario/api/product/${productId}/statistics`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              console.log('Estadísticas actualizadas:', data.statistics);
+              // Aquí se pueden actualizar los elementos del DOM con las nuevas estadísticas
+            }
+          })
+          .catch(error => {
+            console.error('Error al actualizar estadísticas:', error);
+          });
+      };
+      
+      // Animación de carga suave
+      const sections = document.querySelectorAll('.bg-white.rounded-lg.shadow');
+      sections.forEach((section, index) => {
+        section.style.opacity = '0';
+        section.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+          section.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+          section.style.opacity = '1';
+          section.style.transform = 'translateY(0)';
+        }, index * 100);
+      });
+    });

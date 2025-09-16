@@ -1,0 +1,210 @@
+//- ========================================
+//- VIEWS/INVENTORY/GENERAL/DETAILS.PUG - VISTA ESPECÍFICA PARA ALMACÉN GENERAL
+//- ========================================
+
+extends ../../layouts/main
+
+block content
+  .min-h-screen.bg-gray-50
+    //- Header
+    header.bg-white.shadow
+      div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8")
+        .flex.justify-between.items-center.py-6
+          .flex.items-center
+            a(class="mr-4 text-pink-600 hover:text-pink-800" href="/inventario/general")
+              svg.h-6.w-6(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M10 19l-7-7m0 0l7-7m-7 7h18")
+            
+            svg.h-8.w-8.text-emerald-600.mr-3(fill="currentColor", viewBox="0 0 20 20")
+              path(fill-rule="evenodd", d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zm-2 5v5a2 2 0 002 2h12a2 2 0 002-2V9H2zm8 2a1 1 0 011 1v1.586l.293-.293a1 1 0 111.414 1.414l-2 2a1 1 0 01-1.414 0l-2-2a1 1 0 111.414-1.414L9 13.586V12a1 1 0 011-1z", clip-rule="evenodd")
+            h1.text-2xl.font-bold.text-gray-900 Detalles del Producto - Almacén interno
+
+    //- Contenido principal
+    div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6")
+      //- Información general del producto
+      .bg-white.rounded-lg.shadow.p-6.mb-6
+        //- Función auxiliar para determinar clases de color del stock
+        - var stockColorClass = 'bg-gray-100'
+        - var textColorClass = 'text-gray-800'
+        - var indicatorClass = 'bg-gray-400'
+        - var statusText = 'Sin definir'
+        
+        - if (product.stock_status === 'negative') {
+        -   stockColorClass = 'bg-red-100'
+        -   textColorClass = 'text-red-900'
+        -   indicatorClass = 'bg-red-700'
+        -   statusText = 'Existencia Negativa'
+        - } else if (product.stock_status === 'critical') {
+        -   stockColorClass = 'bg-red-50'
+        -   textColorClass = 'text-red-800'
+        -   indicatorClass = 'bg-red-500'
+        -   statusText = 'Stock Crítico'
+        - } else if (product.stock_status === 'low') {
+        -   stockColorClass = 'bg-orange-50'
+        -   textColorClass = 'text-orange-800'
+        -   indicatorClass = 'bg-orange-500'
+        -   statusText = 'Stock Bajo'
+        - } else if (product.stock_status === 'medium') {
+        -   stockColorClass = 'bg-yellow-50'
+        -   textColorClass = 'text-yellow-800'
+        -   indicatorClass = 'bg-yellow-500'
+        -   statusText = 'Stock Medio'
+        - } else if (product.stock_status === 'good') {
+        -   stockColorClass = 'bg-green-50'
+        -   textColorClass = 'text-green-800'
+        -   indicatorClass = 'bg-green-500'
+        -   statusText = 'Stock Bueno'
+        - }
+
+        .flex.items-center.mb-6
+          div(class=`w-6 h-6 rounded-full mr-4 ${indicatorClass}`)
+          h2.text-3xl.font-bold.text-gray-900= product.producto_generico
+          //- ID del producto genérico
+          .ml-3.px-3.py-1.bg-gray-100.text-gray-600.text-sm.font-medium.rounded-full
+            | ID: #{product.id_producto_generico}
+
+
+        div(class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-2")
+
+          //- Partida presupuestal
+          .p-6.bg-emerald-50.rounded-lg
+            .flex.items-center.mb-2
+              svg.h-6.w-6.text-emerald-600.mr-2(fill="currentColor" viewBox="0 0 20 20")
+                path(fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd")
+              .text-sm.font-medium.text-emerald-600 Partida Presupuestal
+            .text-2xl.font-bold.text-emerald-800= product.clave_objeto_del_gasto
+            .text-sm.text-emerald-600= product.partida
+
+          //- EXISTENCIA ALMACÉN GENERAL - PRINCIPAL
+          .p-6.bg-blue-50.rounded-lg
+            .flex.items-center.mb-2
+              svg.h-6.w-6.text-blue-600.mr-2(fill="currentColor" viewBox="0 0 20 20")
+                path(d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z")
+              .text-sm.font-medium.text-blue-600 Existencia Actual
+            .text-4xl.font-bold.text-blue-800= product.existencia_almacen_general || 0
+            .text-sm.text-blue-600 unidades en almacén 
+            .text-xs.mt-2.text-blue-700 Sistema activo
+
+          //- Stock mínimo
+          .p-6.bg-orange-50.rounded-lg
+            .flex.items-center.mb-2
+              svg.h-6.w-6.text-orange-600.mr-2(fill="currentColor" viewBox="0 0 20 20")
+                path(fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd")
+              .text-sm.font-medium.text-orange-600 Stock Mínimo
+            .text-2xl.font-bold.text-orange-800= product.stock_min || 0
+            .text-sm.text-orange-600 nivel mínimo requerido
+
+          //- Stock sugerido
+          .p-6.bg-green-50.rounded-lg
+            .flex.items-center.mb-2
+              svg.h-6.w-6.text-green-600.mr-2(fill="currentColor" viewBox="0 0 20 20")
+                path(fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd")
+              .text-sm.font-medium.text-green-600 Stock Sugerido
+            .text-2xl.font-bold.text-green-800= product.stock_sugerido || 0
+            .text-sm.text-green-600 nivel óptimo de inventario
+
+            .space-y-2.text-sm.text-green-700
+              if product.stock_sugerido > 0
+                .flex.justify-between
+                  span Del objetivo:
+                  span.font-semibold= product.existencia_almacen_general + ' / ' + product.stock_sugerido
+              else
+                .text-xs.text-green-600 Stock sugerido no definido
+
+      //- Presentaciones del producto
+      .bg-white.rounded-lg.shadow.p-6.mb-6
+        .flex.items-center.justify-between.mb-6
+          h3.text-xl.font-semibold.text-gray-900 Presentaciones del Producto
+          .text-sm.text-gray-500= `${product.presentaciones ? product.presentaciones.length : 0} presentación(es) registrada(s)`
+        
+        if product.presentaciones && product.presentaciones.length > 0
+          div(class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6")
+            each presentacion in product.presentaciones
+              div(class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-200 hover:border-blue-300")
+                //- Header de la presentación
+                .flex.items-center.justify-between.mb-4
+                  .px-2.py-1.bg-indigo-100.text-indigo-800.text-xs.font-medium.rounded-full
+                    | ID: #{presentacion.id_producto}
+                  .px-2.py-1.bg-blue-100.text-blue-800.text-xs.font-medium.rounded-full
+                    | Código: #{presentacion.codigo || 'N/A'}
+
+                //- Información de unidades
+                .space-y-3.mb-4
+                  //- Unidad principal
+                  .flex.items-center.justify-between.p-3.bg-gray-50.rounded-lg
+                    .flex.items-center
+                      svg.h-4.w-4.text-gray-600.mr-2(fill="currentColor" viewBox="0 0 20 20")
+                        path(d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z")
+                      span.text-sm.font-medium.text-gray-700 Unidad Principal:
+                    span.font-semibold.text-gray-900 #{presentacion.unidad_principal} (#{presentacion.unidad_principal_abrev})
+                  
+                  //- Contiene (SIEMPRE mostrar)
+                  .flex.items-center.justify-between.p-3.bg-blue-50.rounded-lg
+                    .flex.items-center
+                      svg.h-4.w-4.text-blue-600.mr-2(fill="currentColor" viewBox="0 0 20 20")
+                        path(d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z")
+                      span.text-sm.font-medium.text-blue-700 Contiene:
+                    span.font-semibold.text-blue-900
+                      if presentacion.cantidad_secundaria && presentacion.unidad_secundaria
+                        | #{presentacion.cantidad_secundaria} #{presentacion.unidad_secundaria_abrev}
+                      else
+                        | 1 Pieza(s)
+
+                //- Stock calculado para almacén general
+                .p-3.bg-green-50.rounded-lg
+                  .flex.items-center.justify-between
+                    .flex.items-center
+                      svg.h-4.w-4.text-green-600.mr-2(fill="currentColor" viewBox="0 0 20 20")
+                        path(d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zm-2 5v5a2 2 0 002 2h12a2 2 0 002-2V9H2z")
+                      span.text-sm.font-medium.text-green-700 Stock en Almacén:
+                    span.font-semibold.text-green-900
+                      if presentacion.stock_calculado_principal !== undefined
+                        | #{presentacion.stock_calculado_principal} #{presentacion.unidad_principal_abrev}
+                      else
+                        | N/A
+                
+        else
+          //- Mensaje cuando no hay presentaciones
+          .text-center.py-12.text-gray-500
+            svg.mx-auto.h-16.w-16.text-gray-400.mb-4(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+              path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-8v2m0 0V5a2 2 0 00-2-2H9a2 2 0 00-2 2v2m0 0h10")
+            h4.text-xl.font-medium.text-gray-900.mb-2 Sin presentaciones registradas
+            p.text-sm.mb-4 No hay presentaciones específicas configuradas para este producto genérico.
+            .text-xs.text-gray-400
+              | Las presentaciones permiten manejar diferentes códigos, unidades y conversiones
+              br
+              | para el mismo producto (ej: individual, por caja, por reja, etc.)
+
+
+
+  //- Script para funcionalidad adicional
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      // Efecto hover para las cards de presentaciones
+      const presentationCards = document.querySelectorAll('.border-gray-200');
+      
+      presentationCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+          this.classList.add('transform', 'scale-105');
+        });
+        
+        card.addEventListener('mouseleave', function() {
+          this.classList.remove('transform', 'scale-105');
+        });
+      });
+      
+
+      
+      // Animación de carga suave
+      const sections = document.querySelectorAll('.bg-white.rounded-lg.shadow');
+      sections.forEach((section, index) => {
+        section.style.opacity = '0';
+        section.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+          section.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+          section.style.opacity = '1';
+          section.style.transform = 'translateY(0)';
+        }, index * 100);
+      });
+    });

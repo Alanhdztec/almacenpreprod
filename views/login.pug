@@ -1,0 +1,76 @@
+//- ========================================
+//- VIEWS/LOGIN.PUG (CORREGIDO)
+//- ========================================
+extends layouts/main
+
+block content
+  div(class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8")
+    .max-w-md.w-full.space-y-8
+      div
+        .mx-auto.h-12.w-auto.flex.justify-center
+          svg.h-12.w-12.text-emerald-600(fill="currentColor", viewBox="0 0 20 20")
+            path(fill-rule="evenodd", d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zm-2 5v5a2 2 0 002 2h12a2 2 0 002-2V9H2zm8 2a1 1 0 011 1v1.586l.293-.293a1 1 0 111.414 1.414l-2 2a1 1 0 01-1.414 0l-2-2a1 1 0 111.414-1.414L9 13.586V12a1 1 0 011-1z", clip-rule="evenodd")
+        
+        h2.mt-6.text-center.text-3xl.font-extrabold.text-gray-900
+          | Sistema de Almacén
+       
+
+      form.mt-8.space-y-6(action="/auth/login", method="POST")
+        input(type="hidden", name="remember", value="true")
+        .rounded-md.shadow-sm.-space-y-px
+          div
+            label.sr-only(for="usuario") Usuario
+            input(
+              id="usuario"
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+              type="text"
+              name="usuario"
+              placeholder="Usuario"
+              required
+              autocomplete="username"
+            )
+          div
+            label.sr-only(for="contraseña") Contraseña
+            input(
+              id="contraseña"
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+              type="password"
+              name="contraseña"
+              placeholder="Contraseña"
+              required
+              autocomplete="current-password"
+            )
+
+        if error
+          .rounded-md.bg-red-50.p-4
+            .flex
+              .flex-shrink-0
+                svg.h-5.w-5.text-red-400(fill="currentColor", viewBox="0 0 20 20")
+                  path(fill-rule="evenodd", d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z", clip-rule="evenodd")
+              .ml-3
+                h3.text-sm.font-medium.text-red-800
+                  | #{error}
+
+        div.mt-4
+          p#toggleSistema.text-center.text-sm.font-medium.text-gray-700.cursor-default
+            | Iniciar sesion para continuar
+
+          //- Contenedor del select (inicia oculto)
+          div#sistemaContainer.hidden.mt-2
+            select#sistema(
+              name="sistema",
+              required,
+              class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm appearance-none cursor-default"
+            )
+              option(value="GENERAL") Almacén General
+              option(value="OFICIALIA", selected=(defaultSistema === 'OFICIALIA')) Oficialía
+
+        div
+          button(
+            type="submit"
+            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
+          )
+            span.absolute.left-0.inset-y-0.flex.items-center.pl-3
+              svg(class="h-5 w-5 text-emerald-500 group-hover:text-emerald-400" fill="currentColor" viewBox="0 0 20 20")
+                path(fill-rule="evenodd", d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z", clip-rule="evenodd")
+            | Iniciar Sesión

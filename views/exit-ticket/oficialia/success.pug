@@ -1,0 +1,50 @@
+//- ========================================
+//- VIEWS/EXIT-TICKET/OFICIALIA/SUCCESS.PUG
+//- ========================================
+
+extends ../../layouts/main
+
+block content
+  .min-h-screen.bg-gray-50.flex.items-center.justify-center
+    .max-w-md.w-full.bg-white.rounded-lg.shadow-lg.p-8.text-center
+      //- Icono de éxito
+      .flex.justify-center.mb-6
+        .rounded-full.bg-green-100.p-3
+          svg.h-12.w-12.text-green-600(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+            path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M5 13l4 4L19 7")
+      
+      //- Título y mensaje
+      h1.text-2xl.font-bold.text-gray-900.mb-4 ¡Vale de Salida Creado!
+      
+      p.text-gray-600.mb-2 El vale de salida ha sido creado exitosamente.
+      
+      if valeId
+        p.text-sm.text-gray-500.mb-6
+          | Folio: 
+          span.font-medium.text-gray-900= valeId
+      
+      //- Botones de acción
+      .space-y-3
+        a(
+          href="/exit-ticket/oficialia/create"
+          class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out flex items-center justify-center"
+        )
+          svg.h-4.w-4.mr-2(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+            path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M12 6v6m0 0v6m0-6h6m-6 0H6")
+          | Crear Otro Vale de Salida
+        
+        a(
+          href="/exit-ticket/oficialia/history"
+          class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out flex items-center justify-center"
+        )
+          svg.h-4.w-4.mr-2(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+            path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z")
+          | Ver Historial
+        
+        a(
+          href="/inventario/oficialia"
+          class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out flex items-center justify-center"
+        )
+          svg.h-4.w-4.mr-2(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+            path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z")
+          | Regresar al Inventario

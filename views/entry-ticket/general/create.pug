@@ -1,0 +1,482 @@
+//- ========================================
+//- VIEWS/ENTRY-TICKET/GENERAL/CREATE.PUG
+//- ========================================
+
+extends ../../layouts/main
+
+block content
+  div(data-sistema-activo=sistema)
+  .min-h-screen(
+    data-sistema-activo=sistema
+    class=esAlmacenGeneral ? 'bg-gradient-to-b from-stone-700 to-gray-50' : 'bg-gradient-to-b from-gray-50 to-gray-50'
+  )
+    //- Header
+    header.bg-white.shadow
+      div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8")
+        .flex.justify-between.items-center.py-6
+          .flex.items-center.space-x-4
+            a(class="mr-4 text-pink-600 hover=text-blue-800" href="/inventario/general")
+              svg.h-6.w-6(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M10 19l-7-7m0 0l7-7m-7 7h18")
+            
+            svg.h-8.w-8.text-emerald-600.mr-3(fill="currentColor", viewBox="0 0 20 20")
+              path(fill-rule="evenodd", d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zM8 6a2 2 0 114 0v1H8V6zM6 9a1 1 0 012 0v2a1 1 0 11-2 0V9zm8 0a1 1 0 012 0v2a1 1 0 11-2 0V9z", clip-rule="evenodd")
+            
+            if sistema === 'OFICIALIA'
+              h1.text-2xl.font-bold.text-black-900 Nuevo vale de entrada 
+            else
+              h1.text-2xl.font-bold.text-black-900 Nuevo dale de entrada - Almacén interno
+
+        //
+          form(action="/auth/logout", method="POST", style="display: inline;")
+            button(
+              type="submit"
+              class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out"
+            )
+              | Cerrar Sesión
+
+    //- Formulario principal
+    div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6")
+      form#entryTicketForm(action="/entry-ticket/general/create", method="POST")
+        
+        //- Sección 1: Información General
+        .bg-white.rounded-lg.shadow.p-6.mb-6
+          h2.text-xl.font-semibold.text-gray-900.mb-6 Información General
+          
+          div(class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6")
+            //- Folio (automático)
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700 Folio
+              input(
+                type="text"
+                value="Se asignará automáticamente"
+                disabled
+                class="block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm text-gray-500 sm:text-sm"
+              )
+
+            //- Fecha de entrada (automática)
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700 Fecha de Entrada
+              input(
+                type="text"
+                id="fechaEntrada"
+                disabled
+                class="block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm text-gray-500 sm:text-sm"
+              )
+
+            //- Recibe (usuario logueado por defecto, pero seleccionable)
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="empleadoRecibe") Recibe 
+              input(
+                id="empleadoRecibe"
+                type="text"
+                value=user.nombres + ' ' + user.apellidos 
+                disabled
+                class="block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm text-gray-500 sm:text-sm"
+              )
+              input(type="hidden", name="id_empleado", value=user.id)
+                
+
+        //- Sección 2: Información de Compra
+        .bg-white.rounded-lg.shadow.p-6.mb-6
+          h2.text-xl.font-semibold.text-gray-900.mb-6 Información de Entrada de Productos
+          
+          div(class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6")
+            //- Requisición de Entrada con sugerencias dinámicas
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="requisicion") Requisición de Entrada *
+              .relative
+                input(
+                  type="text"
+                  id="requisicion"
+                  name="requisicion_de_entrada"
+                  placeholder="Escribir requisición..."
+                  autocomplete="off"
+                  class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                )
+                //- Contenedor de sugerencias dinámicas
+                #requisicionSuggestions.absolute.z-10.w-full.bg-white.border.border-gray-300.rounded-md.shadow-lg.mt-1.hidden.max-h-60.overflow-y-auto
+                
+                //- Mantener el datalist como fallback
+                datalist#requisicionesList
+                  each req in requisiciones
+                    option(value=req.requisicion_de_entrada)
+
+            //- Número de Factura
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="numeroFactura") Número de Factura 
+              input(
+                type="text"
+                id="numeroFactura"
+                name="numero_de_factura"
+                
+                placeholder="Ingrese número de factura"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              )
+
+            //- Fecha Emisión Factura
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="fechaFactura") Fecha Emisión Factura
+              input(
+                type="date"
+                id="fechaFactura"
+                name="fecha_de_emision_factura"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              )
+
+            //- Tipo de Compra
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="tipoCompra") Tipo de Compra 
+              select(
+                id="tipoCompra"
+                name="id_tipo_de_compra"
+                
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              )
+                option(value="") Seleccionar tipo de compra
+                each tipo in tiposCompra
+                  option(value=tipo.id_tipo_de_compra)= tipo.tipo_de_compra
+
+            //- Partida Presupuestal
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="partida") Partida Presupuestal 
+              select(
+                id="partida"
+                name="id_partida"
+                
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              )
+                option(value="") Seleccionar partida
+                each partida in partidas
+                  option(value=partida.id_partida) #{partida.clave_objeto_del_gasto} - #{partida.partida}
+
+          
+        //- Sección 3: Proveedor y Repartidor
+        .bg-white.rounded-lg.shadow.p-6.mb-6
+          h2.text-xl.font-semibold.text-gray-900.mb-6 Proveedor y Repartidor
+          
+          div(class="grid grid-cols-1 md:grid-cols-2 gap-6")
+            //- Proveedor
+            .space-y-4
+              .space-y-1
+                label.block.text-sm.font-medium.text-gray-700(for="proveedor") Proveedor *
+                .flex.space-x-2
+                  .relative.flex-1
+                    input(
+                      type="text"
+                      id="proveedor"
+                      name="proveedor_nombre"
+                      required
+                      placeholder="Escribir nombre del proveedor..."
+                      autocomplete="off"
+                      class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    )
+                    #proveedorSuggestions.absolute.z-10.w-full.bg-white.border.border-gray-300.rounded-md.shadow-lg.mt-1.hidden.max-h-60.overflow-y-auto
+                  
+                  button(
+                    type="button"
+                    id="btnNuevoProveedor"
+                    class="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                  )
+                    svg.h-4.w-4(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                      path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M12 6v6m0 0v6m0-6h6m-6 0H6")
+
+              //- RFC Proveedor (automático)
+              .space-y-1
+                label.block.text-sm.font-medium.text-gray-700 RFC Proveedor
+                input(
+                  type="text"
+                  id="proveedorRfc"
+                  name="proveedor_rfc"
+                  disabled
+                  placeholder="Se completará automáticamente"
+                  class="block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm text-gray-500 sm:text-sm"
+                )
+
+            //- Repartidor
+            .space-y-4
+              .space-y-1
+                label.block.text-sm.font-medium.text-gray-700(for="repartidor") Repartidor *
+                .flex.space-x-2
+                  select(
+                    id="repartidor"
+                    name="id_repartidor"
+                    required
+                    disabled
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-gray-100"
+                  )
+                    option(value="") Primero seleccione un proveedor
+                  
+                  button(
+                    type="button"
+                    id="btnNuevoRepartidor"
+                    disabled
+                    class="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  )
+                    svg.h-4.w-4(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                      path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M12 6v6m0 0v6m0-6h6m-6 0H6")
+
+        //- Sección 4: Productos
+        .bg-white.rounded-lg.shadow.p-6.mb-6
+          .flex.justify-between.items-center.mb-6
+            // Contenedor del título y botón juntos
+            .flex.items-center.space-x-3
+              h2.text-xl.font-semibold.text-gray-900 Productos
+              button(
+                type="button"
+                id="btnAgregarProducto"
+                class="flex items-center px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              )
+                svg.h-4.w-4.mr-2(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                  path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M12 6v6m0 0v6m0-6h6m-6 0H6")
+                | Agregar Producto
+              //- Chevron para crear producto genérico
+            .flex.space-x-2
+              button(
+                type="button"
+                id="btnToggleProductoGenerico"
+                class="flex items-center px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              )
+                svg.h-4.w-4.mr-2.transition-transform.duration-200(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                  path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M19 9l-7 7-7-7")
+                | Crear Producto Genérico
+
+              //- Chevron para crear presentación
+              button(
+                type="button"
+                id="btnTogglePresentacion"
+                class="flex items-center px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              )
+                svg.h-4.w-4.mr-2.transition-transform.duration-200(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                  path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M19 9l-7 7-7-7")
+                | Crear Presentación del P. Genérico
+
+              //- Botón agregar producto
+            //
+              button(
+                type="button"
+                id="btnAgregarProducto"
+                class="flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              )
+                svg.h-4.w-4.mr-2(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                  path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M12 6v6m0 0v6m0-6h6m-6 0H6")
+                | Agregar Producto
+
+          //- Panel para crear producto genérico (colapsible)
+          #panelProductoGenerico.hidden.border.border-purple-200.rounded-lg.p-4.mb-4.bg-purple-50
+            h3.text-lg.font-medium.text-purple-900.mb-4 Crear Nuevo Producto Genérico
+            div(class="grid grid-cols-1 md:grid-cols-3 gap-4")
+              .space-y-1
+                label.block.text-sm.font-medium.text-purple-700 Nombre del Producto *
+                input(
+                  type="text"
+                  id="nuevoProductoGenerico"
+                  placeholder="Nombre del producto genérico"
+                  class="block w-full px-3 py-2 border border-purple-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                )
+
+              .space-y-1
+                label.block.text-sm.font-medium.text-purple-700 Partida
+                select(
+                  id="partidaProductoGenerico"
+                  class="block w-full px-3 py-2 border border-purple-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                )
+                  option(value="") Seleccionar partida
+                  each partida in partidas
+                    option(value=partida.id_partida) #{partida.clave_objeto_del_gasto} - #{partida.partida}
+
+              .space-y-1
+                label.block.text-sm.font-medium.text-purple-700 Stock Mínimo
+                input(
+                  type="number"
+                  id="stockMinGenerico"
+                  min="0"
+                  placeholder="0"
+                  class="block w-full px-3 py-2 border border-purple-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                )
+
+              .space-y-1
+                label.block.text-sm.font-medium.text-purple-700 Stock Sugerido
+                input(
+                  type="number"
+                  id="stockSugeridoGenerico"
+                  min="0"
+                  placeholder="0"
+                  class="block w-full px-3 py-2 border border-purple-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                )
+
+              .flex.items-end
+                button(
+                  type="button"
+                  id="btnCrearProductoGenerico"
+                  class="w-full px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                )
+                  | Crear Producto Genérico
+
+          //- Panel para crear presentación (colapsible)
+          #panelPresentacion.hidden.border.border-indigo-200.rounded-lg.p-4.mb-4.bg-indigo-50
+            h3.text-lg.font-medium.text-indigo-900.mb-4 Crear Nueva Presentación
+            div(class="grid grid-cols-1 md:grid-cols-4 gap-4")
+              .space-y-1
+                label.block.text-sm.font-medium.text-indigo-700 Producto Genérico *
+                input(
+                  type="text"
+                  id="buscarProductoGenericoPres"
+                  placeholder="Buscar producto genérico..."
+                  class="block w-full px-3 py-2 border border-indigo-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                )
+
+              .space-y-1
+                label.block.text-sm.font-medium.text-indigo-700 Código 
+                input(
+                  type="text"
+                  id="codigoProducto"
+                  name="codigo"
+                  placeholder="Código de la presentación"
+                  class="block w-full px-3 py-2 border border-indigo-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                )
+
+              .space-y-1
+                label.block.text-sm.font-medium.text-indigo-700 Unidad Principal *
+                select(
+                  id="unidadPrincipal"
+                  class="block w-full px-3 py-2 border border-indigo-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                )
+                  option(value="") Seleccionar unidad
+                  each unidad in unidades
+                    option(value=unidad.id_unidad) #{unidad.unidad} (#{unidad.abreviatura})
+
+              .space-y-1
+                label.block.text-sm.font-medium.text-indigo-700 Cantidad Secundaria
+                input(
+                  type="number"
+                  id="cantidadSecundaria"
+                  min="1"
+                  placeholder="Ej: 12"
+                  class="block w-full px-3 py-2 border border-indigo-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                )
+
+              .space-y-1
+                label.block.text-sm.font-medium.text-indigo-700 Unidad Secundaria
+                select(
+                  id="unidadSecundaria"
+                  name="unidad_secundaria_presentacion"
+                  class="block w-full px-3 py-2 border border-indigo-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                )
+                  option(value="") Seleccionar unidad
+                  each unidad in unidades
+                    option(value=unidad.id_unidad) #{unidad.unidad} (#{unidad.abreviatura})
+
+              .flex.items-end
+                button(
+                  type="button"
+                  id="btnCrearPresentacion"
+                  class="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                )
+                  | Crear Presentación
+
+          //- Lista de productos agregados
+          #listaProductos.space-y-4
+
+        //- Sección 5: Totales
+        div(class="bg-white rounded-lg shadow p-6 mb-6")
+          h2.text-xl.font-semibold.text-gray-900.mb-6 Totales
+          
+          div(class="grid grid-cols-1 md:grid-cols-3 gap-6")
+            //- Subtotal
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="subtotal") Subtotal *
+              .flex.space-x-2
+                input(
+                  type="number"
+                  id="subtotal"
+                  name="subtotal"
+                  step="0.01"
+                  min="0"
+                  required
+                  placeholder="0.00"
+                  class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                )
+                button(
+                  type="button"
+                  id="btnSugerirSubtotal"
+                  class="px-3 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 text-sm"
+                  title="Usar subtotal calculado"
+                )
+                  | $
+                  span#subtotalCalculado 0.00
+
+            //- IVA
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="iva") IVA *
+              input(
+                type="number"
+                id="iva"
+                name="iva"
+                step="0.01"
+                min="0"
+                required
+                placeholder="0.00"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              )
+
+            //- Total (calculado automáticamente)
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700 Total
+              input(
+                type="number"
+                id="total"
+                name="total"
+                step="0.01"
+                disabled
+                placeholder="0.00"
+                class="block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm text-gray-500 sm:text-sm"
+              )
+
+        //- Sección 6: Observaciones y Estatus
+        .bg-white.rounded-lg.shadow.p-6.mb-6
+          h2.text-xl.font-semibold.text-gray-900.mb-6 Observaciones y Estatus
+          
+          div(class="grid grid-cols-1 md:grid-cols-2 gap-6")
+            //- Observaciones
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="observaciones") Observaciones
+              textarea(
+                id="observaciones"
+                name="observaciones"
+                rows="4"
+                placeholder="Observaciones adicionales..."
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              )
+
+            //- Estatus de Captura
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="estatus") Estatus de Captura *
+              select(
+                id="estatus"
+                name="id_estatus_de_captura"
+                required
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              )
+                option(value="") Seleccionar estatus
+                each estatus in estatusCaptura
+                  option(value=estatus.id_estatus_de_captura)= estatus.estatus_de_captura
+
+        //- Botones de acción
+        .flex.justify-start.space-x-4
+          a(
+            href="/inventario/general"
+            class="px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          )
+            | Cancelar
+          
+          button(
+            type="submit"
+            class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          )
+            | Crear Vale de Entrada
+
+        //- Campos ocultos para IDs
+        input(type="hidden", id="selectedProveedorId", name="id_proveedor")
+  
+  

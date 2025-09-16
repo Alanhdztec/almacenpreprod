@@ -1,0 +1,100 @@
+//- ========================================
+//- VIEWS/DASHBOARD.PUG
+//- ========================================
+extends layouts/main
+
+block content
+  .min-h-screen.bg-gray-50
+    //- Header
+    header.bg-white.shadow
+      div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8")
+        .flex.justify-between.items-center.py-6
+          .flex.items-center
+            svg.h-8.w-8.text-blue-600.mr-3(fill="currentColor", viewBox="0 0 20 20")
+              path(fill-rule="evenodd", d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zm-2 5v5a2 2 0 002 2h12a2 2 0 002-2V9H2zm8 2a1 1 0 011 1v1.586l.293-.293a1 1 0 111.414 1.414l-2 2a1 1 0 01-1.414 0l-2-2a1 1 0 111.414-1.414L9 13.586V12a1 1 0 011-1z", clip-rule="evenodd")
+            h1.text-2xl.font-bold.text-gray-900 Sistema de Almacén
+          
+          .flex.items-center.space-x-4
+            .text-sm.text-gray-700
+              span.font-medium Bienvenido, #{user.nombres}
+            
+            form(action="/auth/logout", method="POST", style="display: inline;")
+              button(
+                type="submit"
+                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out"
+              )
+                | Cerrar Sesión
+
+    //- Main Content
+    main(class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8")
+      div(class="px-4 py-6 sm:px-0")
+        div(class="bg-white overflow-hidden shadow rounded-lg")
+          div(class="px-4 py-5 sm:p-6")
+            .text-center
+              //- Icono de usuario
+              .mx-auto.h-24.w-24.rounded-full.bg-blue-100.flex.items-center.justify-center.mb-4
+                if user.foto
+                  img.h-24.w-24.rounded-full(src=user.foto, alt="Foto de perfil")
+                else
+                  svg.h-12.w-12.text-blue-600(fill="currentColor", viewBox="0 0 20 20")
+                    path(fill-rule="evenodd", d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z", clip-rule="evenodd")
+              
+              //- Información del usuario
+              h2.text-2xl.font-bold.text-gray-900.mb-2
+                | ¡Bienvenido, #{user.nombres} #{user.apellidos}!
+              
+              .space-y-2.text-gray-600
+                p
+                  span.font-semibold Usuario: 
+                  span #{user.usuario}
+                
+                p
+                  span.font-semibold Rol: 
+                  //- Badge con clases condicionales
+                  - var roleClass = 'bg-gray-100 text-gray-800'
+                  - if (user.rol === 'Administrador') roleClass = 'bg-purple-100 text-purple-800'
+                  - else if (user.rol === 'Jefe_almacen') roleClass = 'bg-blue-100 text-blue-800'
+                  - else if (user.rol === 'almacen') roleClass = 'bg-green-100 text-green-800'
+                  - else if (user.rol === 'Financieros') roleClass = 'bg-yellow-100 text-yellow-800'
+                  
+                  span(class=`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${roleClass}`)
+                    | #{user.rol}
+                
+                if user.correo
+                  p
+                    span.font-semibold Correo: 
+                    span #{user.correo}
+                
+                if user.empleado
+                  p
+                    span.font-semibold Empleado vinculado: 
+                    span #{user.empleado}
+
+              //- Mensaje de estado
+              .mt-6.p-4.bg-green-50.rounded-md
+                .flex
+                  .flex-shrink-0
+                    svg.h-5.w-5.text-green-400(fill="currentColor", viewBox="0 0 20 20")
+                      path(fill-rule="evenodd", d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z", clip-rule="evenodd")
+                  .ml-3
+                    h3.text-sm.font-medium.text-green-800
+                      | Sesión iniciada correctamente
+                    .mt-2.text-sm.text-green-700
+                      p Has iniciado sesión exitosamente en el sistema de almacén.
+
+        //- Información adicional del sistema
+        .mt-6.bg-white.overflow-hidden.shadow.rounded-lg
+          div(class="px-4 py-5 sm:p-6")
+            h3.text-lg.font-medium.text-gray-900.mb-4 Información del Sistema
+            div(class="grid grid-cols-1 md:grid-cols-3 gap-4")
+              .text-center.p-4.bg-blue-50.rounded-lg
+                .text-2xl.font-bold.text-blue-600 4
+                .text-sm.text-gray-600 Módulos Disponibles
+              
+              .text-center.p-4.bg-green-50.rounded-lg
+                .text-2xl.font-bold.text-green-600 23
+                .text-sm.text-gray-600 Tablas en BD
+              
+              .text-center.p-4.bg-purple-50.rounded-lg
+                .text-2xl.font-bold.text-purple-600 MVC
+                .text-sm.text-gray-600 Arquitectura

@@ -1,0 +1,501 @@
+extends ../layouts/main
+
+block content
+    .min-h-screen.bg-gray-50
+        //- Header
+        header.bg-white.shadow-sm
+            div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8")
+                .flex.justify-between.items-center.py-6
+                    .flex.items-center.space-x-4
+                        - const rutaAnterior = sistemaActivo === 'OFICIALIA' ? `/entry-ticket/oficialia/history/detail/${vale.id_vale_de_entrada}` : `/entry-ticket/general/history/detail/${vale.id_vale_de_entrada}`
+                        a(href= rutaAnterior class="text-pink-600 hover:text-pink-800 transition-colors")
+                            svg.h-6.w-6(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                                path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18")
+                        
+                        div
+                            h1.text-2xl.font-bold.text-gray-900 Gestión de Archivos - Vale ##{vale.id_vale_de_entrada}
+                            .text-sm.text-gray-600= vale.es_oficialia ? 'Oficialía Mayor' : 'Almacén General'
+
+        div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6")
+            //- Información del vale
+            .bg-white.rounded-lg.shadow-sm.overflow-hidden.mb-6
+                div(class="bg-[#007867] px-4 py-3")
+                    h3.text-base.font-medium.text-white.flex.items-center
+                        svg.w-5.h-5.mr-2(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z")
+                        | Información del Vale
+
+                div(class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-50")
+                    div
+                        .text-xs.font-medium.text-gray-500.uppercase.tracking-wide Número de Factura
+                        .text-sm.font-bold.text-gray-900= vale.numero_de_factura || 'Sin número'
+                    div
+                        .text-xs.font-medium.text-gray-500.uppercase.tracking-wide Fecha de Entrada
+                        .text-sm.font-bold.text-gray-900= new Date(vale.fecha_de_entrada).toLocaleDateString('es-MX')
+                    div
+                        .text-xs.font-medium.text-gray-500.uppercase.tracking-wide Proveedor
+                        .text-sm.font-bold.text-gray-900= vale.proveedor || 'Sin proveedor'
+                    div
+                        .text-xs.font-medium.text-gray-500.uppercase.tracking-wide Requisición
+                        .text-sm.font-bold.text-gray-900= vale.requisicion_de_entrada
+
+            //- Sección de subida de archivos
+            .bg-white.rounded-lg.shadow-sm.overflow-hidden.mb-6
+                div(class="bg-[#007867] px-4 py-3")
+                    .flex.justify-between.items-center
+                        h3.text-base.font-medium.text-white.flex.items-center
+                            svg.w-5.h-5.mr-2(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                                path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12")
+                            | Selección de archivos:
+                        span.bg-white.text-green-600.px-2.py-1.rounded.text-xs.font-bold
+                            | Máximo 10MB c/u
+
+                .p-6
+                    form#formularioSubida(enctype="multipart/form-data")
+                        div(class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end")
+                            div(class="md:col-span-2")
+                                //- Input file oculto
+                                input(
+                                    id="archivos"
+                                    type="file"
+                                    name="archivos"
+                                    multiple
+                                    accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+                                    class="hidden"
+                                    required
+                                )
+                                
+                                //- Botón personalizado para seleccionar archivos
+                                .relative
+                                    button(
+                                        type="button"
+                                        id="btnSeleccionarArchivos"
+                                        class="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-gray-100"
+                                    )
+                                        svg.w-6.h-6.mr-2.text-gray-400(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12")
+                                        span.text-gray-600.font-medium#textoSeleccion
+                                            | Haz clic para seleccionar archivos
+                                    
+                                    //- Información de archivos seleccionados
+                                    div#infoArchivosSeleccionados.mt-2.hidden
+                                        .text-sm.text-gray-600.space-y-1#listaArchivosSeleccionados
+                                
+                                .text-xs.text-gray-500.mt-2 Solo se permiten archivos en formato PDF, DOC, DOCX, PNG y JPG
+                            
+                            div
+                                button(
+                                    class="w-full bg-indigo-700 hover:bg-indigo-800 text-white font-bold py-2 px-4 rounded-lg transition duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                                    id="btnSubir"
+                                    type="submit"
+                                    disabled
+                                )
+                                    svg.w-4.h-4.mr-2(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                                        path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3 3m0 0l-3 3m3-3v12")
+                                    | Subir Archivos
+
+                        //- Área de progreso
+                        .mt-4.hidden#barraProgreso
+                            div(class="w-full bg-gray-200 rounded-full h-2.5")
+                                div(class="bg-red-600 h-2.5 rounded-full transition-all duration-300 progress-bar" style="width: 0%")
+
+                        //- Área de mensajes
+                        #mensajesSubida.mt-4
+
+            //- Lista de archivos existentes
+            .bg-white.rounded-lg.shadow-sm.overflow-hidden
+                div(class="bg-[#007867] px-4 py-3")
+                    .flex.justify-between.items-center
+                        h3.text-base.font-medium.text-white.flex.items-center
+                            svg.w-5.h-5.mr-2(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                                path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z")
+                            | Archivos del Vale
+                            span.bg-white.text-pink-700.px-2.py-1.rounded.text-xs.font-bold.ml-2#contadorArchivos= archivos.length
+
+                .p-6#listaArchivos
+                    if archivos && archivos.length > 0
+                        .overflow-x-auto
+                            table.min-w-full.divide-y.divide-gray-200
+                                thead.bg-gray-50
+                                    tr
+                                        th.px-6.py-3.text-left.text-xs.font-medium.text-gray-500.uppercase.tracking-wider #
+                                        th.px-6.py-3.text-left.text-xs.font-medium.text-gray-500.uppercase.tracking-wider Nombre del Archivo
+                                        th.px-6.py-3.text-left.text-xs.font-medium.text-gray-500.uppercase.tracking-wider Tipo
+                                        th.px-6.py-3.text-left.text-xs.font-medium.text-gray-500.uppercase.tracking-wider Estatus
+                                        th.px-6.py-3.text-left.text-xs.font-medium.text-gray-500.uppercase.tracking-wider Acciones
+                                tbody.bg-white.divide-y.divide-gray-200
+                                    each archivo, index in archivos
+                                        tr(class="hover:bg-gray-50 transition-colors" data-archivo-id=archivo.id_vale_de_entrada_archivos)
+                                            td.px-6.py-4.whitespace-nowrap.text-sm.font-medium.text-gray-900= index + 1
+                                            td.px-6.py-4.whitespace-nowrap.text-sm.text-gray-900
+                                                .flex.items-center
+                                                    //- Icono según tipo de archivo
+                                                    if archivo.extension === '.pdf'
+                                                        svg.w-4.h-4.mr-2.text-red-500(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                                                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z")
+                                                    else if archivo.extension === '.doc' || archivo.extension === '.docx'
+                                                        svg.w-4.h-4.mr-2.text-blue-500(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                                                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z")
+                                                    else if archivo.extension === '.png' || archivo.extension === '.jpg' || archivo.extension === '.jpeg'
+                                                        svg.w-4.h-4.mr-2.text-green-500(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                                                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z")
+                                                    else
+                                                        svg.w-4.h-4.mr-2.text-gray-400(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                                                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z")
+                                                    = archivo.nombre_archivo
+                                            td.px-6.py-4.whitespace-nowrap
+                                                //- Badge de tipo de archivo
+                                                if archivo.extension === '.pdf'
+                                                    span.inline-flex.items-center.px-2.py-1.rounded.text-xs.font-medium.bg-red-100.text-red-800= 'PDF'
+                                                else if archivo.extension === '.doc'
+                                                    span.inline-flex.items-center.px-2.py-1.rounded.text-xs.font-medium.bg-blue-100.text-blue-800= 'DOC'
+                                                else if archivo.extension === '.docx'
+                                                    span.inline-flex.items-center.px-2.py-1.rounded.text-xs.font-medium.bg-blue-100.text-blue-800= 'DOCX'
+                                                else if archivo.extension === '.png'
+                                                    span.inline-flex.items-center.px-2.py-1.rounded.text-xs.font-medium.bg-green-100.text-green-800= 'PNG'
+                                                else if archivo.extension === '.jpg' || archivo.extension === '.jpeg'
+                                                    span.inline-flex.items-center.px-2.py-1.rounded.text-xs.font-medium.bg-green-100.text-green-800= 'JPG'
+                                                else
+                                                    span.inline-flex.items-center.px-2.py-1.rounded.text-xs.font-medium.bg-gray-100.text-gray-800= archivo.extension.toUpperCase().replace('.', '')
+                                            td.px-6.py-4.whitespace-nowrap
+                                                if archivo.existe
+                                                    span.inline-flex.items-center.px-2.py-1.rounded.text-xs.font-medium.bg-green-100.text-green-800
+                                                        svg.w-3.h-3.mr-1(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                                                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7")
+                                                        | Disponible
+                                                else
+                                                    span.inline-flex.items-center.px-2.py-1.rounded.text-xs.font-medium.bg-red-100.text-red-800
+                                                        svg.w-3.h-3.mr-1(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                                                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z")
+                                                        | No encontrado
+                                            td.px-6.py-4.whitespace-nowrap.text-sm.font-medium
+                                                .flex.space-x-2
+                                                    if archivo.existe
+                                                        //- Botón Ver (solo para archivos visualizables: PDF, PNG, JPG)
+                                                        if archivo.extension === '.pdf' || archivo.extension === '.png' || archivo.extension === '.jpg' || archivo.extension === '.jpeg'
+                                                            a(
+                                                                href=`/archivos-vale-entrada/archivo/${archivo.id_vale_de_entrada_archivos}/ver`
+                                                                target="_blank"
+                                                                class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-blue-700 bg-blue-100 hover:bg-blue-200 transition duration-200"
+                                                                title="Ver archivo en nueva pestaña"
+                                                            )
+                                                                svg.w-3.h-3.mr-1(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                                                                    path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14")
+                                                                | Ver
+                                                        
+                                                        //- Botón Descargar (para todos los tipos)
+                                                        button(
+                                                        class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-green-700 bg-green-100 hover:bg-green-200 transition duration-200"
+                                                        data-archivo-id=archivo.id_vale_de_entrada_archivos
+                                                        title="Descargar archivo"
+                                                        ).btnDescargar
+                                                        svg.w-3.h-3.mr-1(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                                                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z")
+                                                        | Descargar
+                                                    
+                                                    //- Botón Eliminar
+                                                    button(
+                                                    class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-red-700 bg-red-100 hover:bg-red-200 transition duration-200"
+                                                    data-archivo-id=archivo.id_vale_de_entrada_archivos
+                                                    title="Eliminar archivo"
+                                                    ).btnEliminar
+                                                    svg.w-3.h-3.mr-1(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                                                        path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16")
+                                                    | Eliminar
+                    else
+                        .text-center.py-12
+                            svg.mx-auto.h-12.w-12.text-gray-300.mb-4(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                                path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z")
+                            h3.text-lg.font-medium.text-gray-500.mb-2 No hay archivos adjuntos
+    
+    //- Modal de confirmación para eliminar
+    .fixed.inset-0.z-50.hidden#modalConfirmarEliminacion
+        .flex.items-center.justify-center.min-h-screen.px-4.text-center
+            .fixed.inset-0.bg-black.opacity-50
+            
+            div(class="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl")
+                .mb-4
+                    .flex.items-center.justify-center.w-12.h-12.mx-auto.bg-red-100.rounded-full
+                        svg.w-6.h-6.text-red-600(fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z")
+                    h3.text-lg.font-medium.text-gray-900.text-center.mt-3 Confirmar Eliminación
+
+                .mb-6
+                    p.text-sm.text-gray-500.text-center ¿Estás seguro de que deseas eliminar este archivo?
+                    p.text-xs.text-gray-400.text-center.mt-1 Esta acción no se puede deshacer.
+
+                .flex.space-x-3
+                    button(
+                        class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 px-4 rounded-lg transition duration-200"
+                        id="cancelarEliminacion"
+                    ) Cancelar
+                    button(
+                        class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition duration-200"
+                        id="btnConfirmarEliminar"
+                    ) Eliminar Archivo
+
+block scripts
+    script.
+        const idVale = #{vale.id_vale_de_entrada};
+        
+        // Referencias a elementos
+        const formularioSubida = document.getElementById('formularioSubida');
+        const barraProgreso = document.getElementById('barraProgreso');
+        const mensajesSubida = document.getElementById('mensajesSubida');
+        const listaArchivos = document.getElementById('listaArchivos');
+        const contadorArchivos = document.getElementById('contadorArchivos');
+        
+        // Modal de confirmación para eliminar
+        const modalConfirmarEliminacion = document.getElementById('modalConfirmarEliminacion');
+        const cancelarEliminacion = document.getElementById('cancelarEliminacion');
+        
+        // Funciones para mostrar/ocultar modales
+        function mostrarModal(modal) {
+            modal.classList.remove('hidden');
+        }
+        
+        function ocultarModal(modal) {
+            modal.classList.add('hidden');
+        }
+        
+        // Event listeners para cerrar modal
+        if (cancelarEliminacion) {
+            cancelarEliminacion.addEventListener('click', () => ocultarModal(modalConfirmarEliminacion));
+        }
+        
+        // Cerrar modal al hacer clic en el fondo
+        if (modalConfirmarEliminacion) {
+            modalConfirmarEliminacion.addEventListener('click', (e) => {
+                if (e.target === modalConfirmarEliminacion) {
+                    ocultarModal(modalConfirmarEliminacion);
+                }
+            });
+        }
+        
+        // Verificar que existen todos los elementos
+        if (!formularioSubida) {
+            console.error('Formulario de subida no encontrado');
+        }
+        
+        // Subir archivos con validación múltiple
+        if (formularioSubida) {
+            formularioSubida.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const archivos = document.getElementById('archivos').files;
+                if (archivos.length === 0) {
+                    mostrarMensaje('Por favor selecciona al menos un archivo', 'warning');
+                    return;
+                }
+                
+                // Validación adicional del lado del cliente
+                const tiposPermitidos = ['.pdf', '.doc', '.docx', '.png', '.jpg', '.jpeg'];
+                const tamañoMaximo = 10 * 1024 * 1024; // 10MB
+                
+                for (let archivo of archivos) {
+                    const extension = '.' + archivo.name.split('.').pop().toLowerCase();
+                    
+                    if (!tiposPermitidos.includes(extension)) {
+                        mostrarMensaje(`El archivo "${archivo.name}" no es un tipo válido. Solo se permiten: PDF, DOC, DOCX, PNG, JPG`, 'danger');
+                        return;
+                    }
+                    
+                    if (archivo.size > tamañoMaximo) {
+                        mostrarMensaje(`El archivo "${archivo.name}" excede el límite de 10MB`, 'danger');
+                        return;
+                    }
+                }
+                
+                const formData = new FormData();
+                for (let archivo of archivos) {
+                    formData.append('archivos', archivo);
+                }
+                
+                try {
+                    mostrarProgreso(true);
+                    
+                    const response = await fetch(`/archivos-vale-entrada/vale/${idVale}/subir`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const resultado = await response.json();
+                    
+                    if (resultado.exito) {
+                        mostrarMensaje(resultado.mensaje, 'success');
+                        
+                        // Mostrar archivos rechazados si los hay
+                        if (resultado.rechazados && resultado.rechazados.length > 0) {
+                            resultado.rechazados.forEach(archivo => {
+                                mostrarMensaje(`Archivo rechazado: ${archivo.nombre} - ${archivo.razon}`, 'warning');
+                            });
+                        }
+                        
+                        formularioSubida.reset();
+                        await actualizarListaArchivos();
+                    } else {
+                        mostrarMensaje(resultado.mensaje, 'danger');
+                        
+                        // Mostrar archivos rechazados si los hay
+                        if (resultado.rechazados && resultado.rechazados.length > 0) {
+                            resultado.rechazados.forEach(archivo => {
+                                mostrarMensaje(`Archivo rechazado: ${archivo.nombre} - ${archivo.razon}`, 'warning');
+                            });
+                        }
+                    }
+                } catch (error) {
+                    mostrarMensaje('Error al subir archivos: ' + error.message, 'danger');
+                } finally {
+                    mostrarProgreso(false);
+                }
+            });
+        }
+        
+        // Actualizar lista de archivos
+        const btnActualizarLista = document.getElementById('btnActualizarLista');
+        if (btnActualizarLista) {
+            btnActualizarLista.addEventListener('click', actualizarListaArchivos);
+        }
+        
+        // Eventos para botones de archivos (delegación de eventos)
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.btnDescargar')) {
+                const idArchivo = e.target.closest('.btnDescargar').dataset.archivoId;
+                descargarArchivo(idArchivo);
+            } else if (e.target.closest('.btnEliminar')) {
+                const idArchivo = e.target.closest('.btnEliminar').dataset.archivoId;
+                confirmarEliminacion(idArchivo);
+            }
+        });
+        
+        // Confirmar eliminación
+        let archivoAEliminar = null;
+        function confirmarEliminacion(idArchivo) {
+            archivoAEliminar = idArchivo;
+            mostrarModal(modalConfirmarEliminacion);
+        }
+        
+        const btnConfirmarEliminar = document.getElementById('btnConfirmarEliminar');
+        if (btnConfirmarEliminar) {
+            btnConfirmarEliminar.addEventListener('click', async function() {
+                if (!archivoAEliminar) return;
+                
+                try {
+                    const response = await fetch(`/archivos-vale-entrada/archivo/${archivoAEliminar}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    const resultado = await response.json();
+                    
+                    if (resultado.exito) {
+                        mostrarMensaje(resultado.mensaje, 'success');
+                        await actualizarListaArchivos();
+                        ocultarModal(modalConfirmarEliminacion);
+                    } else {
+                        mostrarMensaje(resultado.mensaje, 'danger');
+                    }
+                } catch (error) {
+                    mostrarMensaje('Error al eliminar archivo: ' + error.message, 'danger');
+                }
+                
+                archivoAEliminar = null;
+            });
+        }
+        
+        // Funciones auxiliares
+        async function actualizarListaArchivos() {
+            try {
+                const response = await fetch(`/archivos-vale-entrada/vale/${idVale}/lista`);
+                const resultado = await response.json();
+                
+                if (resultado.exito) {
+                    // Por simplicidad, recarga la página para mostrar los cambios
+                    location.reload();
+                } else {
+                    mostrarMensaje('Error al actualizar la lista de archivos', 'warning');
+                }
+            } catch (error) {
+                console.error('Error al actualizar lista:', error);
+                mostrarMensaje('Error de conexión al actualizar lista', 'danger');
+            }
+        }
+        
+        function descargarArchivo(idArchivo) {
+            window.open(`/archivos-vale-entrada/archivo/${idArchivo}/descargar`, '_blank');
+        }
+        
+        function mostrarProgreso(mostrar) {
+            if (barraProgreso) {
+                if (mostrar) {
+                    barraProgreso.classList.remove('hidden');
+                    const progressBar = barraProgreso.querySelector('.progress-bar');
+                    if (progressBar) {
+                        progressBar.style.width = '100%';
+                    }
+                } else {
+                    barraProgreso.classList.add('hidden');
+                    const progressBar = barraProgreso.querySelector('.progress-bar');
+                    if (progressBar) {
+                        progressBar.style.width = '0%';
+                    }
+                }
+            }
+        }
+        
+        function mostrarMensaje(mensaje, tipo) {
+            if (!mensajesSubida) {
+                console.error('Contenedor de mensajes no encontrado');
+                return;
+            }
+            
+            let colorClasses;
+            let iconPath;
+            
+            switch(tipo) {
+                case 'success':
+                    colorClasses = 'bg-green-50 border-green-200 text-green-800';
+                    iconPath = 'M5 13l4 4L19 7';
+                    break;
+                case 'danger':
+                case 'error':
+                    colorClasses = 'bg-red-50 border-red-200 text-red-800';
+                    iconPath = 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z';
+                    break;
+                case 'warning':
+                    colorClasses = 'bg-yellow-50 border-yellow-200 text-yellow-800';
+                    iconPath = 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z';
+                    break;
+                default:
+                    colorClasses = 'bg-blue-50 border-blue-200 text-blue-800';
+                    iconPath = 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z';
+            }
+            
+            const alertaId = 'alerta-' + Date.now();
+            
+            const alertaHTML = `
+                <div id="${alertaId}" class="border rounded-lg p-4 ${colorClasses} mb-4 transition-all duration-300">
+                    <div class="flex">
+                        <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}"></path>
+                        </svg>
+                        <p class="flex-1">${mensaje}</p>
+                        <button onclick="document.getElementById('${alertaId}').remove()" class="ml-2 text-current hover:opacity-70">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            mensajesSubida.innerHTML = alertaHTML + mensajesSubida.innerHTML;
+            
+            // Auto-ocultar después de 5 segundos
+            setTimeout(() => {
+                const elemento = document.getElementById(alertaId);
+                if (elemento) {
+                    elemento.style.opacity = '0';
+                    setTimeout(() => elemento.remove(), 300);
+                }
+            }, 5000);
+        }
