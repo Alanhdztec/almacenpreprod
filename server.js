@@ -102,10 +102,8 @@ app.use('/system', systemRoutes);
 app.use('/inventario/general', inventoryGeneralRoutes);
 app.use('/inventario/oficialia', inventoryOficialiaRoutes);
 
-// ✅ NUEVA RUTA - Archivos de vales de entrada (ANTES de las demás rutas de vales)
 app.use('/archivos-vale-entrada', archivosValeEntradaRoutes);
 
-// ✅ HISTORIALES ANTES QUE LAS RUTAS GENERALES (AMBOS SISTEMAS)
 // Historial de vales de entrada
 app.use('/entry-ticket/general/history', entryTicketHistoryGeneralRoutes);
 app.use('/entry-ticket/oficialia/history', entryTicketHistoryOficialiaRoutes);
@@ -120,7 +118,6 @@ app.use('/entry-ticket/oficialia', entryTicketOficialiaRoutes);
 app.use('/exit-ticket/general', exitTicketGeneralRoutes);
 app.use('/exit-ticket/oficialia', exitTicketOficialiaRoutes);
 
-// ✅ MANTENER COMPATIBILIDAD CON RUTAS ANTIGUAS
 app.use('/oficialia/historial-vales', entryTicketHistoryOficialiaRoutes);
 app.use('/oficialia/historial-salidas', exitTicketHistoryOficialiaRoutes);
 
@@ -136,7 +133,7 @@ app.get('/', (req, res) => {
       return res.redirect('/system/seleccionar-sistema');
     }
     
-    // ✅ USAR FUNCIÓN LOCAL (sin importar AuthController)
+    // USAR FUNCIÓN LOCAL (sin importar AuthController)
     console.log('🏠 Usando función de redirección local');
     redirectByRoleAndSystem(req, res);
   } else {

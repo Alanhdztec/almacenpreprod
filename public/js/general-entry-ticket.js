@@ -1,5 +1,5 @@
 // ========================================
-// PUBLIC/JS/ENTRY-TICKET.JS
+// PUBLIC/JS/GENERAL-ENTRY-TICKET.JS
 // ========================================
 
 document.addEventListener('DOMContentLoaded', function() {

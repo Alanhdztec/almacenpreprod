@@ -12,19 +12,31 @@ html(lang="es")
     link(rel="stylesheet", href="/css/styles.css")
 
     block styles
-    
+    p= "Valor de sistemaActual: " + sistema_activo
+
   body.bg-gray-50.min-h-screen(data-sistema=sistemaActual ? sistemaActual.id : '')
     main
       block content
     
     script(src="/js/main.js")
     
-    //- Cargar JavaScript específico para vale de entrada
+    //- Cargar JavaScript específico para vales de entrada
     if currentPage === 'entry-ticket'
-      script(src="/js/entry-ticket.js")
+      //- Ahora revisamos qué sistema está activo
+      if sistema_activo === 'OFICIALIA'
+        script(src="/js/oficialia-entry-ticket.js")
+      else
+        script(src="/js/general-entry-ticket.js")
 
+    //- Cargar JavaScript específico para vales de entrada
     if currentPage === 'exit-ticket'
-      script(src="/js/exit-ticket.js")
+      //- Ahora revisamos qué sistema está activo
+      if sistema_activo === 'OFICIALIA'
+        script(src="/js/oficialia-exit-ticket.js")
+      else
+        script(src="/js/general-exit-ticket.js")
+
+
     
     //- Scripts adicionales específicos por página
     block scripts
