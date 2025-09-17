@@ -4,15 +4,14 @@ html(lang="es")
     meta(charset="UTF-8")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     title= title
-    
-    //- ✅ CAMBIO: Usar tu CSS compilado en lugar del CDN
+    link(rel="icon", href="/favicon.png", type="image/png")
     link(rel="stylesheet", href="/css/output.css")
     
     //- Mantener tus estilos personalizados si los tienes
     link(rel="stylesheet", href="/css/styles.css")
 
     block styles
-    p= "Valor de sistemaActual: " + sistema_activo
+    //-p= "Valor de sistemaActual: " + sistema_activo
 
   body.bg-gray-50.min-h-screen(data-sistema=sistemaActual ? sistemaActual.id : '')
     main
