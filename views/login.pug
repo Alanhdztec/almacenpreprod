@@ -3,8 +3,11 @@
 //- ========================================
 extends layouts/main
 
+block variables
+  - var pageId = 'fondo'
+  - var bodyClass = 'flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8'
+
 block content
-  div(class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8")
     .max-w-md.w-full.space-y-8
       div
         .mx-auto.h-12.w-auto.flex.justify-center

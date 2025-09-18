@@ -10,12 +10,14 @@ almacenDev/
 │   │   ├── 📄 homeController.js
 │   │   └── 📄 inventarioController.js
 │   ├── 📁 general/
+│   │   ├── 📄 accionesInventarioGeneralController.js
 │   │   ├── 📄 entryticketGeneralController.js
 │   │   ├── 📄 entryticketHistoryGeneralController.js
 │   │   ├── 📄 exitticketGeneralController.js
 │   │   ├── 📄 exitticketHistoryGeneralController.js
 │   │   └── 📄 inventarioGeneralController.js
 │   ├── 📁 oficialia/
+│   │   ├── 📄 accionesInventarioOficialiaController.js
 │   │   ├── 📄 entryticketHistoryOficialiaController.js
 │   │   ├── 📄 entryticketOficialiaController.js
 │   │   ├── 📄 exitticketHistoryOficialiaController.js
@@ -29,6 +31,7 @@ almacenDev/
 │   └── 📄 input.css
 ├── 📁 middleware/
 │   ├── 📄 auth.js
+│   ├── 📄 jefeAlmacen.js
 │   ├── 📄 redirectByRole.js
 │   ├── 📄 subirArchivos.js
 │   └── 📄 system.js
@@ -44,41 +47,45 @@ almacenDev/
 │   ├── 📁 css/
 │   │   ├── 📄 output.css
 │   │   └── 📄 styles.css
+│   ├── 📁 images/
+│   │   ├── 📄 favicon.png
+│   │   └── 📄 patron-textil-vertical.png
 │   ├── 📁 js/
 │   │   ├── 📄 general-entry-ticket.js
 │   │   ├── 📄 general-exit-ticket.js
 │   │   ├── 📄 main.js
 │   │   ├── 📄 oficialia-entry-ticket.js
 │   │   └── 📄 oficialia-exit-ticket.js
-│   ├── 📁 uploads/
-│   │   ├── 📁 borrados/
-│   │   │   └── 📄 vale5_1757527361858_1757527213315_Untitled.png
-│   │   └── 📁 facturas-vales-entrada/
-│   │       ├── 📁 vale-1/
-│   │       │   └── 📁 borrados/
-│   │       ├── 📁 vale-27/
-│   │       │   ├── 📄 1757432339755_FORMATO_DE_ANTEPROYECTO__2_.pdf
-│   │       │   └── 📄 1757432588003_ACUSE.pdf
-│   │       ├── 📁 vale-3/
-│   │       │   ├── 📁 borrados/
-│   │       │   │   └── 📄 1757446473820_FORMATO_DE_ANTEPROYECTO__2_.doc
-│   │       │   ├── 📄 1757445672879_Untitled.png
-│   │       │   └── 📄 1757445864318_ACUSE.pdf
-│   │       ├── 📁 vale-4/
-│   │       │   ├── 📄 1757513749627_Fase_3_del_protocolo.pdf
-│   │       │   ├── 📄 1757513767357_ACUSE.pdf
-│   │       │   └── 📄 1757514260993_ACUSE.pdf
-│   │       └── 📁 vale-5/
-│   │           └── 📄 1757526823327_Grimgar_Vol_20_IA.pdf
-│   └── 📄 favicon.png
+│   └── 📁 uploads/
+│       ├── 📁 borrados/
+│       │   └── 📄 vale5_1757527361858_1757527213315_Untitled.png
+│       └── 📁 facturas-vales-entrada/
+│           ├── 📁 vale-1/
+│           │   └── 📁 borrados/
+│           ├── 📁 vale-27/
+│           │   ├── 📄 1757432339755_FORMATO_DE_ANTEPROYECTO__2_.pdf
+│           │   └── 📄 1757432588003_ACUSE.pdf
+│           ├── 📁 vale-3/
+│           │   ├── 📁 borrados/
+│           │   │   └── 📄 1757446473820_FORMATO_DE_ANTEPROYECTO__2_.doc
+│           │   ├── 📄 1757445672879_Untitled.png
+│           │   └── 📄 1757445864318_ACUSE.pdf
+│           ├── 📁 vale-4/
+│           │   ├── 📄 1757513749627_Fase_3_del_protocolo.pdf
+│           │   ├── 📄 1757513767357_ACUSE.pdf
+│           │   └── 📄 1757514260993_ACUSE.pdf
+│           └── 📁 vale-5/
+│               └── 📄 1757526823327_Grimgar_Vol_20_IA.pdf
 ├── 📁 routes/
 │   ├── 📁 general/
+│   │   ├── 📄 acciones-inventario-general.js
 │   │   ├── 📄 entry-ticket-general.js
 │   │   ├── 📄 entry-ticket-history-general.js
 │   │   ├── 📄 exit-ticket-general-routes.js
 │   │   ├── 📄 exit-ticket-history-general.js
 │   │   └── 📄 inventario-general.js
 │   ├── 📁 oficialia/
+│   │   ├── 📄 acciones-inventario-oficialia.js
 │   │   ├── 📄 entry-ticket-history-oficialia.js
 │   │   ├── 📄 entry-ticket-oficialia.js
 │   │   ├── 📄 exit-ticket-history-oficialia.js
@@ -129,11 +136,15 @@ almacenDev/
 │   │   │   ├── 📄 details.pug
 │   │   │   └── 📄 index.pug
 │   │   ├── 📁 general/
+│   │   │   ├── 📄 acciones.pug
 │   │   │   ├── 📄 details.pug
-│   │   │   └── 📄 index.pug
+│   │   │   ├── 📄 index.pug
+│   │   │   └── 📄 productos-criticos.pug
 │   │   └── 📁 oficialia/
+│   │       ├── 📄 acciones.pug
 │   │       ├── 📄 details.pug
-│   │       └── 📄 index.pug
+│   │       ├── 📄 index.pug
+│   │       └── 📄 productos-criticos.pug
 │   ├── 📁 layouts/
 │   │   └── 📄 main.pug
 │   ├── 📁 system/

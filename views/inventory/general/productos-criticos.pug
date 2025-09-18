@@ -1,5 +1,5 @@
 //- ========================================
-//- VIEWS/INVENTORY/OFICIALIA/PRODUCTOS-CRITICOS.PUG - PRODUCTOS CON STOCK CRÍTICO
+//- VIEWS/INVENTORY/GENERAL/PRODUCTOS-CRITICOS.PUG - PRODUCTOS CON STOCK CRÍTICO
 //- ========================================
 
 extends ../../layouts/main
@@ -58,7 +58,7 @@ block content
         nav.flex-1.px-4.py-4.space-y-2.overflow-y-auto
           .space-y-1
             a.sidebar-link(
-              href="/inventario/oficialia/acciones"
+              href="/inventario/general/acciones"
               class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 hover:text-gray-900 transition duration-150 ease-in-out"
             )
               svg.h-5.w-5.mr-3.text-gray-400(fill="currentColor", viewBox="0 0 20 20")
@@ -66,7 +66,7 @@ block content
               | ← Volver a Acciones
             
             a.sidebar-link(
-              href="/inventario/oficialia"
+              href="/inventario/general"
               class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 hover:text-gray-900 transition duration-150 ease-in-out"
             )
               svg.h-5.w-5.mr-3.text-gray-400(fill="currentColor", viewBox="0 0 20 20")
@@ -142,7 +142,7 @@ block content
                 
                   .flex-shrink-0.ml-4
                     a(
-                      href=`/inventario/oficialia/product/${product.id_producto_generico}`
+                      href=`/inventario/general/product/${product.id_producto_generico}`
                       class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out"
                     )
                       | Ver Detalles
@@ -235,7 +235,7 @@ block content
           p.mt-1.text-sm.text-gray-500 Todos los productos del inventario de oficialía tienen niveles de stock adecuados.
           .mt-6
             a(
-              href="/inventario/oficialia/acciones"
+              href="/inventario/general/acciones"
               class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
             )
               | Volver a Acciones de Inventario

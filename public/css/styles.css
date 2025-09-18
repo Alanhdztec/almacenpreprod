@@ -145,3 +145,14 @@
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
 }
+
+/* public/css/styles.css */
+
+#fondo {
+
+  background:
+    linear-gradient(to right, rgb(0 0 150 / 0.05), rgb(250 250 250 / 1), rgb(250 250 250 / 1), rgb(0 0 150 / 0.05)),
+    url('/images/patron-textil-vertical.png') repeat; /* Nota el cambio en la ruta de la imagen */
+  background-position: center;
+  background-attachment: fixed;
+}

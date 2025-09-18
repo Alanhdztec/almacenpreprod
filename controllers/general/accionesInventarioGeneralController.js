@@ -165,7 +165,7 @@ class AccionesInventarioController {
       const countResult = await pool.query(countQuery);
       const total = parseInt(countResult.rows[0].total);
 
-      res.render('inventory/oficialia/productos-criticos', {
+      res.render('inventory/general/productos-criticos', {
         title: 'Productos con Stock Crítico - General',
         user: req.session.user,
         products: result.rows,

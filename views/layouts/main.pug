@@ -1,10 +1,17 @@
+//- ========================================
+//- VIEWS/LAYOUTS/MAIN.PUG (CORREGIDO)
+//- ========================================
+
+block variables
+
+
 doctype html
 html(lang="es")
   head
     meta(charset="UTF-8")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     title= title
-    link(rel="icon", href="/favicon.png", type="image/png")
+    link(rel="icon", href="/images/favicon.png", type="image/png")
     link(rel="stylesheet", href="/css/output.css")
     
     //- Mantener tus estilos personalizados si los tienes
@@ -13,7 +20,7 @@ html(lang="es")
     block styles
     //-p= "Valor de sistemaActual: " + sistema_activo
 
-  body.bg-gray-50.min-h-screen(data-sistema=sistemaActual ? sistemaActual.id : '')
+  body(id=pageId, class=['bg-gray-50', 'min-h-screen', bodyClass], data-sistema=sistemaActual ? sistemaActual.id : '')
     main
       block content
     
