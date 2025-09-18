@@ -32,6 +32,11 @@ const exitTicketHistoryGeneralRoutes = require('./routes/general/exit-ticket-his
 
 const archivosValeEntradaRoutes = require('./routes/archivos-vale-entrada');
 
+const accionesInventarioOficialiaRoutes = require('./routes/oficialia/acciones-inventario-oficialia');
+const accionesInventarioGeneralRoutes = require('./routes/general/acciones-inventario-general');
+
+
+
 const app = express();
 const PORT = process.env.PORT;
 
@@ -120,6 +125,11 @@ app.use('/exit-ticket/oficialia', exitTicketOficialiaRoutes);
 
 app.use('/oficialia/historial-vales', entryTicketHistoryOficialiaRoutes);
 app.use('/oficialia/historial-salidas', exitTicketHistoryOficialiaRoutes);
+
+app.use('/inventario/oficialia/acciones', accionesInventarioOficialiaRoutes);
+app.use('/inventario/general/acciones', accionesInventarioGeneralRoutes);
+
+
 
 app.get('/', (req, res) => {
   console.log('🏠 Ruta raíz accedida');
