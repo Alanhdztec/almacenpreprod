@@ -388,48 +388,53 @@ class EntryTicket {
             producto.fecha_de_caducidad && typeof producto.fecha_de_caducidad === 'string' && producto.fecha_de_caducidad.trim() !== '' ? producto.fecha_de_caducidad : null
           ]);
 
-          // ACTUALIZAR EXISTENCIAS SEGÚN EL TIPO DE ALMACÉN
-          const getProductInfoQuery = `
-            SELECT cantidad_secundaria, id_producto_generico
-            FROM productos p
-            WHERE p.id_producto = $1
-          `;
-          
-          const productInfo = await client.query(getProductInfoQuery, [producto.id_producto]);
-          
-          if (productInfo.rows.length > 0) {
-            const { cantidad_secundaria, id_producto_generico } = productInfo.rows[0];
-            const multiplicador = cantidad_secundaria || 1;
-            const cantidadEnUnidadBase = parseFloat(producto.cantidad) * multiplicador;
-
-            console.log(`📦 Producto ${producto.id_producto}: ${producto.cantidad} × ${multiplicador} = ${cantidadEnUnidadBase} unidades base`);
-
-            let updateExistenciaQuery;
-            let campoActualizado;
-
-            if (esOficialia) {
-              // Actualizar existencia de oficialía
-              updateExistenciaQuery = `
-                UPDATE productos_genericos 
-                SET existencia_oficialia = existencia_oficialia + $1
-                WHERE id_producto_generico = $2
-              `;
-              campoActualizado = 'existencia_oficialia';
-            } else {
-              // Actualizar existencia de almacén general (campo 'existencia')
-              updateExistenciaQuery = `
-                UPDATE productos_genericos 
-                SET existencia = existencia + $1
-                WHERE id_producto_generico = $2
-              `;
-              campoActualizado = 'existencia (almacén general)';
-            }
-
-            await client.query(updateExistenciaQuery, [cantidadEnUnidadBase, id_producto_generico]);
+          // SOLO ACTUALIZAR EXISTENCIAS SI EL VALE ESTÁ 'CAPTURADO' (ID 3)
+          if (parseInt(valeData.id_estatus_de_captura, 10) === 3) {
+            console.log('📦 Estatus es CAPTURADO. Actualizando existencias...');
+            const getProductInfoQuery = `
+              SELECT cantidad_secundaria, id_producto_generico
+              FROM productos p
+              WHERE p.id_producto = $1
+            `;
             
-            console.log(`✅ Actualizado ${campoActualizado} +${cantidadEnUnidadBase} para producto genérico ${id_producto_generico}`);
+            const productInfo = await client.query(getProductInfoQuery, [producto.id_producto]);
+            
+            if (productInfo.rows.length > 0) {
+              const { cantidad_secundaria, id_producto_generico } = productInfo.rows[0];
+              const multiplicador = cantidad_secundaria || 1;
+              const cantidadEnUnidadBase = parseFloat(producto.cantidad) * multiplicador;
+
+              console.log(` -> Producto ${producto.id_producto}: ${producto.cantidad} × ${multiplicador} = ${cantidadEnUnidadBase} unidades base`);
+
+              let updateExistenciaQuery;
+              let campoActualizado;
+
+              if (esOficialia) {
+                // Actualizar existencia de oficialía
+                updateExistenciaQuery = `
+                  UPDATE productos_genericos 
+                  SET existencia_oficialia = existencia_oficialia + $1
+                  WHERE id_producto_generico = $2
+                `;
+                campoActualizado = 'existencia_oficialia';
+              } else {
+                // Actualizar existencia de almacén general (campo 'existencia')
+                updateExistenciaQuery = `
+                  UPDATE productos_genericos 
+                  SET existencia = existencia + $1
+                  WHERE id_producto_generico = $2
+                `;
+                campoActualizado = 'existencia (almacén general)';
+              }
+
+              await client.query(updateExistenciaQuery, [cantidadEnUnidadBase, id_producto_generico]);
+              
+              console.log(` -> ✅ Actualizado ${campoActualizado} +${cantidadEnUnidadBase} para producto genérico ${id_producto_generico}`);
+            } else {
+              throw new Error(`No se encontró información del producto con ID: ${producto.id_producto}`);
+            }
           } else {
-            throw new Error(`No se encontró información del producto con ID: ${producto.id_producto}`);
+            console.log('📦 Estatus no es CAPTURADO. No se actualizan existencias.');
           }
         }
       }
@@ -549,6 +554,74 @@ class EntryTicket {
     }
   }*/
 
+  // Obtener un vale y sus detalles para edición
+  static async getValeForEditing(idVale) {
+    const client = await pool.connect();
+    try {
+      // Obtener datos principales del vale
+      const valeQuery = `
+        SELECT 
+          ve.*,
+          p.proveedor,
+          p.rfc,
+          req.requisicion_de_entrada,
+          rep.repartidor,
+          u.nombres || ' ' || u.apellidos as nombre_empleado
+        FROM vales_de_entrada ve
+        LEFT JOIN proveedores p ON ve.id_proveedor = p.id_proveedor
+        LEFT JOIN requisiciones_de_entrada req ON ve.id_requisicion_de_entrada = req.id_requisicion_de_entrada
+        LEFT JOIN repartidores rep ON ve.id_repartidor = rep.id_repartidor
+        LEFT JOIN usuarios u ON ve.id_empleado = u.id_empleado
+        WHERE ve.id_vale_de_entrada = $1 AND ve.esta_borrado = false
+      `;
+      const valeResult = await client.query(valeQuery, [idVale]);
+
+      if (valeResult.rows.length === 0) {
+        throw new Error('Vale de entrada no encontrado.');
+      }
+
+      const vale = valeResult.rows[0];
+
+      // Solo permitir edición si está 'En Captura' (ID 2)
+      if (vale.id_estatus_de_captura !== 2) {
+        throw new Error('Este vale no se puede editar porque no está en estado "En Captura".');
+      }
+
+      // Obtener productos del vale
+      const productosQuery = `
+        SELECT
+          ved.*,
+          pg.producto_generico,
+          prod.codigo,
+          u.abreviatura as unidad_abreviatura,
+          CASE 
+            WHEN prod.cantidad_secundaria IS NOT NULL THEN 
+              CONCAT(pg.producto_generico, ' (', prod.codigo, ' - ', u.abreviatura, 
+                    ' = ', prod.cantidad_secundaria, ' ', u2.abreviatura, ')')
+            ELSE CONCAT(pg.producto_generico, ' (', prod.codigo, ' - ', u.abreviatura, ')')
+          END as producto_display
+        FROM vales_de_entrada_detalle ved
+        JOIN productos prod ON ved.id_producto = prod.id_producto
+        JOIN productos_genericos pg ON prod.id_producto_generico = pg.id_producto_generico
+        JOIN unidades u ON ved.id_unidad = u.id_unidad
+        LEFT JOIN unidades u2 ON prod.id_unidad_secundaria = u2.id_unidad
+        WHERE ved.id_vale_de_entrada = $1 AND ved.esta_borrado = false
+        ORDER BY ved.id_vale_de_entrada_detalle ASC
+      `;
+      const productosResult = await client.query(productosQuery, [idVale]);
+
+      return {
+        vale: vale,
+        productos: productosResult.rows
+      };
+
+    } catch (error) {
+      console.error('Error al obtener vale para edición:', error);
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
 }
 
 module.exports = EntryTicket;

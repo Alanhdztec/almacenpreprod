@@ -1,0 +1,333 @@
+//- ========================================
+//- VIEWS/ENTRY-TICKET/GENERAL/EDIT.PUG
+//- ========================================
+
+extends ../../layouts/main
+
+block content
+  div(data-sistema-activo=sistema)
+  .min-h-screen(
+    data-sistema-activo=sistema
+    class=esAlmacenGeneral ? 'bg-gradient-to-b from-stone-700 to-gray-50' : 'bg-gradient-to-b from-gray-50 to-gray-50'
+  )
+    //- Header
+    header.bg-white.shadow
+      div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8")
+        .flex.justify-between.items-center.py-6
+          .flex.items-center.space-x-4
+            a(class="mr-4 text-pink-600 hover=text-blue-800" href="/inventario/general")
+              svg.h-6.w-6(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M10 19l-7-7m0 0l7-7m-7 7h18")
+            
+            svg.h-8.w-8.text-emerald-600.mr-3(fill="currentColor", viewBox="0 0 20 20")
+              path(fill-rule="evenodd", d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zM8 6a2 2 0 114 0v1H8V6zM6 9a1 1 0 012 0v2a1 1 0 11-2 0V9zm8 0a1 1 0 012 0v2a1 1 0 11-2 0V9z", clip-rule="evenodd")
+            
+            h1.text-2xl.font-bold.text-black-900 Editar vale de entrada - Almacén interno
+
+    //- Formulario principal
+    div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6")
+      //- CAMBIO: La acción del formulario apunta a la ruta de actualización
+      form#entryTicketForm(action=`/entry-ticket/general/update/${vale.id_vale_de_entrada}`, method="POST")
+        
+        //- Sección 1: Información General (NO EDITABLE)
+        .bg-white.rounded-lg.shadow.p-6.mb-6
+          h2.text-xl.font-semibold.text-gray-900.mb-6 Información General (No Editable)
+          
+          div(class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6")
+            //- Folio (asignado)
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700 Folio
+              p.block.w-full.px-3.py-2.bg-gray-100.border.border-gray-300.rounded-md.shadow-sm.text-gray-600.sm:text-sm= vale.id_vale_de_entrada
+
+            //- Fecha de entrada (original)
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700 Fecha de Entrada Original
+              p.block.w-full.px-3.py-2.bg-gray-100.border.border-gray-300.rounded-md.shadow-sm.text-gray-600.sm:text-sm= new Date(vale.fecha_de_entrada).toLocaleString()
+
+            //- Recibe (original)
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="empleadoRecibe") Recibió Originalmente
+              p.block.w-full.px-3.py-2.bg-gray-100.border.border-gray-300.rounded-md.shadow-sm.text-gray-600.sm:text-sm= vale.nombre_empleado
+
+        //- Sección 2: Información de Compra (EDITABLE)
+        .bg-white.rounded-lg.shadow.p-6.mb-6
+          h2.text-xl.font-semibold.text-gray-900.mb-6 Información de Entrada de Productos
+          
+          div(class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6")
+            //- Requisición de Entrada
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="requisicion") Requisición de Entrada *
+              .relative
+                input(
+                  type="text"
+                  id="requisicion"
+                  name="requisicion_de_entrada"
+                  value=vale.requisicion_de_entrada
+                  placeholder="Escribir requisición..."
+                  autocomplete="off"
+                  class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                )
+                #requisicionSuggestions.absolute.z-10.w-full.bg-white.border.border-gray-300.rounded-md.shadow-lg.mt-1.hidden.max-h-60.overflow-y-auto
+
+            //- Número de Factura
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="numeroFactura") Número de Factura 
+              input(
+                type="text"
+                id="numeroFactura"
+                name="numero_de_factura"
+                value=vale.numero_de_factura
+                placeholder="Ingrese número de factura"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              )
+
+            //- Fecha Emisión Factura
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="fechaFactura") Fecha Emisión Factura
+              input(
+                type="date"
+                id="fechaFactura"
+                name="fecha_de_emision_factura"
+                value=vale.fecha_de_emision_factura ? new Date(vale.fecha_de_emision_factura).toISOString().split('T')[0] : ''
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              )
+
+            //- Tipo de Compra
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="tipoCompra") Tipo de Compra 
+              select(
+                id="tipoCompra"
+                name="id_tipo_de_compra"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              )
+                option(value="") Seleccionar tipo de compra
+                each tipo in tiposCompra
+                  option(value=tipo.id_tipo_de_compra selected=(vale.id_tipo_de_compra == tipo.id_tipo_de_compra))= tipo.tipo_de_compra
+
+            //- Partida Presupuestal
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="partida") Partida Presupuestal 
+              select(
+                id="partida"
+                name="id_partida"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              )
+                option(value="") Seleccionar partida
+                each partida in partidas
+                  option(value=partida.id_partida selected=(vale.id_partida == partida.id_partida)) #{partida.clave_objeto_del_gasto} - #{partida.partida}
+
+        //- Sección 3: Proveedor y Repartidor (EDITABLE)
+        .bg-white.rounded-lg.shadow.p-6.mb-6
+          h2.text-xl.font-semibold.text-gray-900.mb-6 Proveedor y Repartidor
+          
+          div(class="grid grid-cols-1 md:grid-cols-2 gap-6")
+            //- Proveedor
+            .space-y-4
+              .space-y-1
+                label.block.text-sm.font-medium.text-gray-700(for="proveedor") Proveedor *
+                .flex.space-x-2
+                  .relative.flex-1
+                    input(
+                      type="text"
+                      id="proveedor"
+                      name="proveedor_nombre"
+                      value=vale.proveedor
+                      required
+                      placeholder="Escribir nombre del proveedor..."
+                      autocomplete="off"
+                      class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    )
+                    #proveedorSuggestions.absolute.z-10.w-full.bg-white.border.border-gray-300.rounded-md.shadow-lg.mt-1.hidden.max-h-60.overflow-y-auto
+                  
+                  button(
+                    type="button"
+                    id="btnNuevoProveedor"
+                    class="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                  )
+                    svg.h-4.w-4(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                      path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M12 6v6m0 0v6m0-6h6m-6 0H6")
+
+              //- RFC Proveedor (automático)
+              .space-y-1
+                label.block.text-sm.font-medium.text-gray-700 RFC Proveedor
+                input(
+                  type="text"
+                  id="proveedorRfc"
+                  name="proveedor_rfc"
+                  value=vale.rfc
+                  disabled
+                  placeholder="Se completará automáticamente"
+                  class="block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm text-gray-500 sm:text-sm"
+                )
+
+            //- Repartidor
+            .space-y-4
+              .space-y-1
+                label.block.text-sm.font-medium.text-gray-700(for="repartidor") Repartidor *
+                .flex.space-x-2
+                  select(
+                    id="repartidor"
+                    name="id_repartidor"
+                    required
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  )
+                    //- Options will be populated by JS
+                    option(value="") Seleccione un proveedor primero
+                  
+                  button(
+                    type="button"
+                    id="btnNuevoRepartidor"
+                    class="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                  )
+                    svg.h-4.w-4(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                      path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M12 6v6m0 0v6m0-6h6m-6 0H6")
+
+        //- Sección 4: Productos
+        .bg-white.rounded-lg.shadow.p-6.mb-6
+          .flex.justify-between.items-center.mb-6
+            .flex.items-center.space-x-3
+              h2.text-xl.font-semibold.text-gray-900 Productos
+              button(
+                type="button"
+                id="btnAgregarProducto"
+                class="flex items-center px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              )
+                svg.h-4.w-4.mr-2(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                  path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M12 6v6m0 0v6m0-6h6m-6 0H6")
+                | Agregar Producto
+
+          //- Lista de productos agregados (se llenará con JS)
+          #listaProductos.space-y-4
+
+        //- Sección 5: Totales
+        div(class="bg-white rounded-lg shadow p-6 mb-6")
+          h2.text-xl.font-semibold.text-gray-900.mb-6 Totales
+          div(class="grid grid-cols-1 md:grid-cols-3 gap-6")
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="subtotal") Subtotal *
+              .flex.space-x-2
+                input(
+                  type="number"
+                  id="subtotal"
+                  name="subtotal"
+                  value=vale.subtotal
+                  step="0.01"
+                  min="0"
+                  required
+                  placeholder="0.00"
+                  class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                )
+                button(
+                  type="button"
+                  id="btnSugerirSubtotal"
+                  class="px-3 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 text-sm"
+                  title="Usar subtotal calculado"
+                )
+                  | $
+                  span#subtotalCalculado 0.00
+
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="iva") IVA *
+              input(
+                type="number"
+                id="iva"
+                name="iva"
+                value=vale.iva
+                step="0.01"
+                min="0"
+                required
+                placeholder="0.00"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              )
+
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700 Total
+              input(
+                type="number"
+                id="total"
+                name="total"
+                value=vale.total
+                step="0.01"
+                disabled
+                placeholder="0.00"
+                class="block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm text-gray-500 sm:text-sm"
+              )
+
+        //- Sección 6: Observaciones y Estatus
+        .bg-white.rounded-lg.shadow.p-6.mb-6
+          h2.text-xl.font-semibold.text-gray-900.mb-6 Observaciones y Estatus
+          div(class="grid grid-cols-1 md:grid-cols-2 gap-6")
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="observaciones") Observaciones
+              textarea(
+                id="observaciones"
+                name="observaciones"
+                rows="4"
+                placeholder="Observaciones adicionales..."
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              )= vale.observaciones
+
+            .space-y-1
+              label.block.text-sm.font-medium.text-gray-700(for="estatus") Estatus de Captura *
+              select(
+                id="estatus"
+                name="id_estatus_de_captura"
+                required
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              )
+                option(value="") Seleccionar estatus
+                each estatus in estatusCaptura
+                  option(value=estatus.id_estatus_de_captura selected=(vale.id_estatus_de_captura == estatus.id_estatus_de_captura))= estatus.estatus_de_captura
+
+        //- Botones de acción
+        .flex.justify-start.space-x-4
+          a(
+            href="/inventario/general"
+            class="px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          )
+            | Cancelar
+          
+          button(
+            type="submit"
+            class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          )
+            | Actualizar Vale de Entrada
+
+        //- Campos ocultos para IDs
+        input(type="hidden", id="selectedProveedorId", name="id_proveedor", value=vale.id_proveedor)
+
+block scripts
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      // Parsear los productos que vienen del controlador
+      const productosExistentes = !{productos};
+
+      // Función para inicializar el formulario con datos existentes
+      function inicializarFormularioEdicion() {
+        // Simular la selección del proveedor para cargar repartidores
+        const proveedorId = document.getElementById('selectedProveedorId').value;
+        if (proveedorId) {
+          const repartidorSelect = document.getElementById('repartidor');
+          repartidorSelect.disabled = false; // Habilitar el select
+          
+          // Llama a la función que carga los repartidores (asumiendo que existe en tu JS)
+          // Esta función debe existir en general-entry-ticket.js
+          cargarRepartidores(proveedorId, #{vale.id_repartidor});
+        }
+
+        // Renderizar los productos existentes
+        if (productosExistentes && productosExistentes.length > 0) {
+          productosExistentes.forEach(producto => {
+            // Llama a la función que agrega un producto a la UI
+            // Esta función debe existir en general-entry-ticket.js
+            // y debe aceptar los datos del producto como argumento.
+            agregarProductoUI(producto);
+          });
+          // Recalcular totales después de cargar los productos
+          actualizarCalculoSubtotal();
+        }
+      }
+
+      inicializarFormularioEdicion();
+    });
+  script(src="/js/general-entry-ticket.js")
