@@ -1,0 +1,602 @@
+//- ========================================
+//- VIEWS/INVENTORY/GENERAL/STOCK-CONFIG.PUG - CONFIGURACIÓN DE STOCK MÍNIMO Y SUGERIDO
+//- ========================================
+
+extends ../../layouts/main
+
+block content
+  .min-h-screen.bg-gray-50
+    //- Header
+    header.bg-white.shadow
+      div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8")
+        .flex.justify-between.items-center.py-6
+          .flex.items-center
+            button.menu-toggle(
+              type="button" 
+              id="sidebarToggle"
+              class="mr-3 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition duration-150 ease-in-out"
+              title="Abrir menú"
+            )
+              svg.h-6.w-6(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M4 6h16M4 12h16M4 18h16")
+            
+            svg.h-8.w-8.text-blue-600.mr-3(fill="currentColor", viewBox="0 0 20 20")
+              path(fill-rule="evenodd", d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z", clip-rule="evenodd")
+            
+            h1.text-2xl.font-bold.text-gray-900 Configuración de Stock
+            span.ml-2.text-sm.text-gray-500.bg-blue-100.px-2.py-1.rounded-full General
+            
+          .flex.items-center.space-x-4
+            .text-sm.text-gray-700
+              span.font-medium #{user.nombres}
+            
+            form(action="/auth/logout", method="POST", style="display: inline;")
+              button(
+                type="submit"
+                title="Cerrar sesión"
+                class="bg-pink-600 hover:bg-pink-700 text-white p-2 rounded-md transition duration-150 ease-in-out"
+              )
+                svg(xmlns="http://www.w3.org/2000/svg", fill="none", viewBox="0 0 24 24", stroke-width="1.5", stroke="currentColor", class="w-5 h-5")
+                  path(stroke-linecap="round", stroke-linejoin="round", d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9")
+
+    //- Contenido principal
+    div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6")
+      
+      //- Breadcrumb
+      nav.flex.mb-6(aria-label="Breadcrumb")
+        ol.inline-flex.items-center.space-x-1.md-space-x-3
+          li.inline-flex.items-center
+            a.text-gray-700.hover-text-blue-600(href="/inventario/general/acciones")
+              svg.h-4.w-4.mr-2(fill="currentColor", viewBox="0 0 20 20")
+                path(fill-rule="evenodd", d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z", clip-rule="evenodd")
+              | Acciones de Inventario
+          li
+            .flex.items-center
+              svg.h-5.w-5.text-gray-400.mr-1(fill="currentColor", viewBox="0 0 20 20")
+                path(fill-rule="evenodd", d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z", clip-rule="evenodd")
+              span.text-gray-500 Ajustar Stock
+
+      //- Estadísticas
+      .bg-white.rounded-lg.shadow.p-6.mb-6
+        h2.text-lg.font-semibold.text-gray-900.mb-4 Estado de Configuración
+        
+        .grid.grid-cols-2.md-grid-cols-4.gap-4
+          .bg-blue-50.p-4.rounded-lg
+            .flex.items-center
+              svg.h-8.w-8.text-blue-600.mr-3(fill="currentColor", viewBox="0 0 20 20")
+                path(fill-rule="evenodd", d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z", clip-rule="evenodd")
+              .flex-1
+                .text-2xl.font-bold.text-blue-900= estadisticas.total_productos
+                .text-sm.text-blue-600 Total productos
+                
+          .bg-green-50.p-4.rounded-lg
+            .flex.items-center
+              svg.h-8.w-8.text-green-600.mr-3(fill="currentColor", viewBox="0 0 20 20")
+                path(fill-rule="evenodd", d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z", clip-rule="evenodd")
+              .flex-1
+                .text-2xl.font-bold.text-green-900= estadisticas.configurados
+                .text-sm.text-green-600 Configurados
+                .text-xs.text-green-500= estadisticas.porcentaje_configurados + '%'
+                
+          .bg-yellow-50.p-4.rounded-lg
+            .flex.items-center
+              svg.h-8.w-8.text-yellow-600.mr-3(fill="currentColor", viewBox="0 0 20 20")
+                path(fill-rule="evenodd", d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z", clip-rule="evenodd")
+              .flex-1
+                .text-2xl.font-bold.text-yellow-900= estadisticas.parcialmente_configurados
+                .text-sm.text-yellow-600 Parciales
+                
+          .bg-red-50.p-4.rounded-lg
+            .flex.items-center
+              svg.h-8.w-8.text-red-600.mr-3(fill="currentColor", viewBox="0 0 20 20")
+                path(fill-rule="evenodd", d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z", clip-rule="evenodd")
+              .flex-1
+                .text-2xl.font-bold.text-red-900= estadisticas.sin_configurar
+                .text-sm.text-red-600 Sin configurar
+
+      //- Filtros y búsqueda
+      .bg-white.rounded-lg.shadow.p-6.mb-6
+        .flex.flex-col.md-flex-row.gap-4
+          .flex-1
+            label.block.text-sm.font-medium.text-gray-700.mb-2 Buscar producto
+            .relative
+              input#searchInput(
+                type="text"
+                name="search"
+                value=filtros.search
+                placeholder="Buscar por nombre del producto..."
+                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              )
+              svg.absolute.left-3.top-3.h-5.w-5.text-gray-400(fill="none", stroke="currentColor", viewBox="0 0 24 24")
+                path(stroke-linecap="round", stroke-linejoin="round", stroke-width="2", d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z")
+          
+          .flex-shrink-0
+            label.block.text-sm.font-medium.text-gray-700.mb-2 Filtrar por estado
+            select#filtroSelect(
+              name="filtro"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            )
+              option(value="todos", selected=filtros.filtro === 'todos') Todos los productos
+              option(value="sin_configurar", selected=filtros.filtro === 'sin_configurar') Sin configurar
+              option(value="configurados", selected=filtros.filtro === 'configurados') Configurados
+
+          .flex-shrink-0.flex.items-end.space-x-2
+            button#applyFiltersBtn(
+              type="button"
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-150 ease-in-out"
+            )
+              | Aplicar filtros
+            
+            button#clearFiltersBtn(
+              type="button"
+              class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition duration-150 ease-in-out"
+            )
+              | Limpiar
+
+      //- Acciones masivas
+      .bg-white.rounded-lg.shadow.p-6.mb-6
+        .flex.flex-col.md-flex-row.justify-between.items-start.md-items-center.gap-4
+          .flex-1
+            h3.text-lg.font-medium.text-gray-900 Acciones masivas
+            p.text-sm.text-gray-600 Configura stock para múltiples productos a la vez
+          
+          .flex.space-x-2
+            button#selectAllBtn(
+              type="button"
+              class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-150 ease-in-out"
+            )
+              | Seleccionar todo
+            
+            button#massiveUpdateBtn(
+              type="button"
+              disabled
+              class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition duration-150 ease-in-out"
+            )
+              | Actualizar seleccionados
+
+      //- Tabla de productos
+      .bg-white.rounded-lg.shadow.overflow-hidden
+        .overflow-x-auto
+          table.min-w-full.divide-y.divide-gray-200
+            thead.bg-gray-50
+              tr
+                th.px-4.py-3.text-left.text-xs.font-medium.text-gray-500.uppercase.tracking-wider.w-12
+                  input#selectAllCheckbox(type="checkbox", class="rounded border-gray-300 text-blue-600 focus:ring-blue-500")
+                th.px-6.py-3.text-left.text-xs.font-medium.text-gray-500.uppercase.tracking-wider.w-1.max-w-xs Producto
+
+                th.px-6.py-3.text-left.text-xs.font-medium.text-gray-500.uppercase.tracking-wider.w-1.max-w-32 Partida
+
+                th.px-3.py-3.text-center.text-xs.font-medium.text-gray-500.uppercase.tracking-wider.w-20 Stock Mín.
+                th.px-3.py-3.text-center.text-xs.font-medium.text-gray-500.uppercase.tracking-wider.w-20 Stock Sug.
+                th.px-4.py-3.text-center.text-xs.font-medium.text-gray-500.uppercase.tracking-wider.w-24 Estado
+                th.px-4.py-3.text-center.text-xs.font-medium.text-gray-500.uppercase.tracking-wider.w-32 Acciones
+                
+            tbody.bg-white.divide-y.divide-gray-200
+              each product in products
+                tr(data-product-id=product.id_producto_generico)
+                  td.px-6.py-4.whitespace-nowrap
+                    input.product-checkbox(
+                      type="checkbox"
+                      value=product.id_producto_generico
+                      class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    )
+                  
+                  td.px-6.py-4.w-1.max-w-xs
+                    .flex.flex-col
+                        .text-sm.font-medium.text-gray-900.truncate(
+                        title=product.producto_generico
+                        )= product.producto_generico
+                        .text-xs.text-gray-500 ID: #{product.id_producto_generico}
+                  
+                  td.px-6.py-4.whitespace-nowrap.max-w-32
+                    .text-sm.text-gray-900.truncate(
+                        title=product.clave_objeto_del_gasto
+                    )= product.clave_objeto_del_gasto
+                    .text-xs.text-gray-500.truncate(
+                        title=product.partida
+                    )= product.partida
+                  
+                  td.px-3.py-4.whitespace-nowrap.w-20
+                    input(
+                      type="number"
+                      min="0"
+                      value=product.stock_min
+                      data-field="stock_min"
+                      data-product-id=product.id_producto_generico
+                      class="stock-input w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    )
+                  
+                  td.px-3.py-4.whitespace-nowrap.w-20
+                    input(
+                      type="number"
+                      min="0"
+                      value=product.stock_sugerido
+                      data-field="stock_sugerido"
+                      data-product-id=product.id_producto_generico
+                      class="stock-input w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    )
+                  
+                  td.px-6.py-4.whitespace-nowrap
+                    case product.estado_configuracion
+                      when 'configurado'
+                        span.inline-flex.px-2.py-1.text-xs.font-semibold.rounded-full.bg-green-100.text-green-800
+                          | Configurado
+                      when 'parcial'
+                        span.inline-flex.px-2.py-1.text-xs.font-semibold.rounded-full.bg-yellow-100.text-yellow-800
+                          | Parcial
+                      when 'sin_configurar'
+                        span.inline-flex.px-2.py-1.text-xs.font-semibold.rounded-full.bg-red-100.text-red-800
+                          | Sin configurar
+                  
+                  td.px-6.py-4.whitespace-nowrap.text-sm.font-medium
+                    button.update-btn(
+                      type="button"
+                      data-product-id=product.id_producto_generico
+                      class="text-blue-600 hover:text-blue-900 mr-3"
+                    )
+                      | Actualizar
+                    
+                    button.reset-btn(
+                      type="button"
+                      data-product-id=product.id_producto_generico
+                      data-original-min=product.stock_min
+                      data-original-sugerido=product.stock_sugerido
+                      class="text-gray-600 hover:text-gray-900"
+                    )
+                      | Resetear
+
+      //- Paginación
+      if pagination.totalPaginas > 1
+        .flex.items-center.justify-between.bg-white.px-4.py-3.sm-px-6.rounded-lg.shadow.mt-6
+          .flex.flex-1.justify-between.sm-hidden
+            - const prevPage = pagination.paginaActual > 1 ? pagination.paginaActual - 1 : 1
+            - const nextPage = pagination.paginaActual < pagination.totalPaginas ? pagination.paginaActual + 1 : pagination.totalPaginas
+            
+            a.relative.inline-flex.items-center.px-4.py-2.text-sm.font-medium.text-gray-700.bg-white.border.border-gray-300.rounded-md.hover-bg-gray-50(
+              href=`?pagina=${prevPage}&search=${filtros.search}&filtro=${filtros.filtro}`
+              class=pagination.paginaActual === 1 ? 'cursor-not-allowed opacity-50' : ''
+            )
+              | Anterior
+            
+            a.relative.ml-3.inline-flex.items-center.px-4.py-2.text-sm.font-medium.text-gray-700.bg-white.border.border-gray-300.rounded-md.hover-bg-gray-50(
+              href=`?pagina=${nextPage}&search=${filtros.search}&filtro=${filtros.filtro}`
+              class=pagination.paginaActual === pagination.totalPaginas ? 'cursor-not-allowed opacity-50' : ''
+            )
+              | Siguiente
+          
+          .hidden.sm-flex.sm-flex-1.sm-items-center.sm-justify-between
+            div
+              p.text-sm.text-gray-700
+                | Mostrando 
+                span.font-medium= (pagination.paginaActual - 1) * 15 + 1
+                |  a 
+                span.font-medium= Math.min(pagination.paginaActual * 15, pagination.total)
+                |  de 
+                span.font-medium= pagination.total
+                |  productos
+            
+            div
+              nav.relative.z-0.inline-flex.rounded-md.shadow-sm.-space-x-px(aria-label="Paginación")
+                - for (let i = Math.max(1, pagination.paginaActual - 2); i <= Math.min(pagination.totalPaginas, pagination.paginaActual + 2); i++)
+                  if i === pagination.paginaActual
+                    span.relative.inline-flex.items-center.px-4.py-2.text-sm.font-medium.text-white.bg-blue-600.border.border-blue-600
+                      = i
+                  else
+                    a.relative.inline-flex.items-center.px-4.py-2.text-sm.font-medium.text-gray-700.bg-white.border.border-gray-300.hover-bg-gray-50(
+                      href=`?pagina=${i}&search=${filtros.search}&filtro=${filtros.filtro}`
+                    )
+                      = i
+
+  //- Modal de confirmación para actualización masiva
+  div#massiveUpdateModal.fixed.inset-0.bg-gray-600.bg-opacity-50.overflow-y-auto.h-full.w-full.hidden.z-50
+    .relative.top-20.mx-auto.p-5.border.w-96.shadow-lg.rounded-md.bg-white
+      .mt-3.text-center
+        h3.text-lg.font-medium.text-gray-900.mb-4 Confirmar Actualización Masiva
+        p.text-sm.text-gray-600.mb-6
+          | ¿Estás seguro de que deseas actualizar el stock de 
+          span#selectedCount 0
+          |  productos seleccionados?
+        
+        .flex.justify-center.space-x-4
+          button#confirmMassiveUpdate.px-4.py-2.bg-green-600.text-white.rounded-lg.hover-bg-green-700.transition.duration-150.ease-in-out
+            | Confirmar
+          button#cancelMassiveUpdate.px-4.py-2.bg-gray-600.text-white.rounded-lg.hover-bg-gray-700.transition.duration-150.ease-in-out
+            | Cancelar
+
+  //- Script específico para configuración de stock
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      // Variables globales
+      let selectedProducts = new Set();
+      
+      // Elementos del DOM
+      const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+      const productCheckboxes = document.querySelectorAll('.product-checkbox');
+      const massiveUpdateBtn = document.getElementById('massiveUpdateBtn');
+      const selectAllBtn = document.getElementById('selectAllBtn');
+      const massiveUpdateModal = document.getElementById('massiveUpdateModal');
+      const selectedCountSpan = document.getElementById('selectedCount');
+      
+      // Funciones de utilidad
+      function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all duration-300 ${
+          type === 'success' ? 'bg-green-500 text-white' :
+          type === 'error' ? 'bg-red-500 text-white' :
+          type === 'warning' ? 'bg-yellow-500 text-black' :
+          'bg-blue-500 text-white'
+        }`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+          notification.remove();
+        }, 3000);
+      }
+
+      // Gestión de selección de productos
+      function updateSelectedCount() {
+        selectedCountSpan.textContent = selectedProducts.size;
+        massiveUpdateBtn.disabled = selectedProducts.size === 0;
+        
+        if (selectedProducts.size === 0) {
+          massiveUpdateBtn.classList.add('disabled:bg-gray-400', 'disabled:cursor-not-allowed');
+        } else {
+          massiveUpdateBtn.classList.remove('disabled:bg-gray-400', 'disabled:cursor-not-allowed');
+        }
+      }
+
+      // Event listeners para checkboxes individuales
+      productCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+          const productId = this.value;
+          
+          if (this.checked) {
+            selectedProducts.add(productId);
+          } else {
+            selectedProducts.delete(productId);
+          }
+          
+          updateSelectedCount();
+          
+          // Actualizar checkbox principal
+          selectAllCheckbox.checked = selectedProducts.size === productCheckboxes.length;
+          selectAllCheckbox.indeterminate = selectedProducts.size > 0 && selectedProducts.size < productCheckboxes.length;
+        });
+      });
+
+      // Seleccionar/deseleccionar todo
+      if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+          const isChecked = this.checked;
+          
+          productCheckboxes.forEach(checkbox => {
+            checkbox.checked = isChecked;
+            const productId = checkbox.value;
+            
+            if (isChecked) {
+              selectedProducts.add(productId);
+            } else {
+              selectedProducts.delete(productId);
+            }
+          });
+          
+          updateSelectedCount();
+        });
+      }
+
+      // Botón seleccionar todo
+      if (selectAllBtn) {
+        selectAllBtn.addEventListener('click', function() {
+          productCheckboxes.forEach(checkbox => {
+            checkbox.checked = true;
+            selectedProducts.add(checkbox.value);
+          });
+          selectAllCheckbox.checked = true;
+          updateSelectedCount();
+        });
+      }
+
+      // Actualización individual de productos
+      document.querySelectorAll('.update-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+          const productId = this.getAttribute('data-product-id');
+          const row = document.querySelector(`tr[data-product-id="${productId}"]`);
+          const stockMinInput = row.querySelector('input[data-field="stock_min"]');
+          const stockSugeridoInput = row.querySelector('input[data-field="stock_sugerido"]');
+          
+          const stockMin = parseInt(stockMinInput.value) || 0;
+          const stockSugerido = parseInt(stockSugeridoInput.value) || 0;
+          
+          // Validaciones
+          if (stockMin < 0 || stockSugerido < 0) {
+            showNotification('Los valores no pueden ser negativos', 'error');
+            return;
+          }
+          
+          if (stockMin > stockSugerido && stockSugerido > 0) {
+            showNotification('El stock mínimo no puede ser mayor al stock sugerido', 'error');
+            return;
+          }
+
+          try {
+            this.disabled = true;
+            this.textContent = 'Actualizando...';
+            
+            const response = await fetch(`/inventario/general/acciones/ajustar-stock/api/producto/${productId}`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                id_producto_generico: productId,
+                stock_min: stockMin,
+                stock_sugerido: stockSugerido
+              })
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+              showNotification('Stock actualizado correctamente', 'success');
+              
+              // Actualizar estado visual del producto
+              const estadoCell = row.querySelector('td:nth-child(6) span');
+              if (stockMin > 0 && stockSugerido > 0) {
+                estadoCell.className = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
+                estadoCell.textContent = 'Configurado';
+              } else if (stockMin > 0 || stockSugerido > 0) {
+                estadoCell.className = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800';
+                estadoCell.textContent = 'Parcial';
+              }
+            } else {
+              showNotification(result.message || 'Error al actualizar', 'error');
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            showNotification('Error de conexión', 'error');
+          } finally {
+            this.disabled = false;
+            this.textContent = 'Actualizar';
+          }
+        });
+      });
+
+      // Resetear valores originales
+      document.querySelectorAll('.reset-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const productId = this.getAttribute('data-product-id');
+          const originalMin = this.getAttribute('data-original-min');
+          const originalSugerido = this.getAttribute('data-original-sugerido');
+          
+          const row = document.querySelector(`tr[data-product-id="${productId}"]`);
+          const stockMinInput = row.querySelector('input[data-field="stock_min"]');
+          const stockSugeridoInput = row.querySelector('input[data-field="stock_sugerido"]');
+          
+          stockMinInput.value = originalMin;
+          stockSugeridoInput.value = originalSugerido;
+        });
+      });
+
+      // Actualización masiva
+      if (massiveUpdateBtn) {
+        massiveUpdateBtn.addEventListener('click', function() {
+          if (selectedProducts.size === 0) {
+            showNotification('Selecciona al menos un producto', 'warning');
+            return;
+          }
+          
+          massiveUpdateModal.classList.remove('hidden');
+        });
+      }
+
+      // Modal de confirmación
+      document.getElementById('confirmMassiveUpdate').addEventListener('click', async function() {
+        const productos = [];
+        
+        selectedProducts.forEach(productId => {
+          const row = document.querySelector(`tr[data-product-id="${productId}"]`);
+          const stockMinInput = row.querySelector('input[data-field="stock_min"]');
+          const stockSugeridoInput = row.querySelector('input[data-field="stock_sugerido"]');
+          
+          productos.push({
+            id_producto_generico: productId,
+            stock_min: parseInt(stockMinInput.value) || 0,
+            stock_sugerido: parseInt(stockSugeridoInput.value) || 0
+          });
+        });
+
+        try {
+          this.disabled = true;
+          this.textContent = 'Procesando...';
+          
+          const response = await fetch('/inventario/general/acciones/ajustar-stock/api/masivo', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ productos })
+          });
+
+          const result = await response.json();
+          
+          if (result.success) {
+            showNotification(result.message, 'success');
+            
+            // Actualizar estados visuales
+            selectedProducts.forEach(productId => {
+              const row = document.querySelector(`tr[data-product-id="${productId}"]`);
+              const stockMinInput = row.querySelector('input[data-field="stock_min"]');
+              const stockSugeridoInput = row.querySelector('input[data-field="stock_sugerido"]');
+              const estadoCell = row.querySelector('td:nth-child(6) span');
+              
+              const stockMin = parseInt(stockMinInput.value) || 0;
+              const stockSugerido = parseInt(stockSugeridoInput.value) || 0;
+              
+              if (stockMin > 0 && stockSugerido > 0) {
+                estadoCell.className = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
+                estadoCell.textContent = 'Configurado';
+              } else if (stockMin > 0 || stockSugerido > 0) {
+                estadoCell.className = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800';
+                estadoCell.textContent = 'Parcial';
+              }
+            });
+            
+            // Limpiar selección
+            selectedProducts.clear();
+            productCheckboxes.forEach(cb => cb.checked = false);
+            selectAllCheckbox.checked = false;
+            updateSelectedCount();
+            
+            if (result.errores && result.errores.length > 0) {
+              console.log('Errores encontrados:', result.errores);
+            }
+          } else {
+            showNotification(result.message || 'Error en actualización masiva', 'error');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          showNotification('Error de conexión', 'error');
+        } finally {
+          this.disabled = false;
+          this.textContent = 'Confirmar';
+          massiveUpdateModal.classList.add('hidden');
+        }
+      });
+
+      document.getElementById('cancelMassiveUpdate').addEventListener('click', function() {
+        massiveUpdateModal.classList.add('hidden');
+      });
+
+      // Filtros
+      document.getElementById('applyFiltersBtn').addEventListener('click', function() {
+        const search = document.getElementById('searchInput').value;
+        const filtro = document.getElementById('filtroSelect').value;
+        
+        const url = new URL(window.location);
+        url.searchParams.set('search', search);
+        url.searchParams.set('filtro', filtro);
+        url.searchParams.set('pagina', '1');
+        
+        window.location.href = url.toString();
+      });
+
+      document.getElementById('clearFiltersBtn').addEventListener('click', function() {
+        const url = new URL(window.location);
+        url.searchParams.delete('search');
+        url.searchParams.delete('filtro');
+        url.searchParams.set('pagina', '1');
+        
+        window.location.href = url.toString();
+      });
+
+      // Enter en búsqueda
+      document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          document.getElementById('applyFiltersBtn').click();
+        }
+      });
+
+      // Inicializar
+      updateSelectedCount();
+    });

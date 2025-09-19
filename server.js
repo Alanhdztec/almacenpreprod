@@ -35,6 +35,8 @@ const archivosValeEntradaRoutes = require('./routes/archivos-vale-entrada');
 const accionesInventarioOficialiaRoutes = require('./routes/oficialia/acciones-inventario-oficialia');
 const accionesInventarioGeneralRoutes = require('./routes/general/acciones-inventario-general');
 
+const stockConfigGeneral = require('./routes/general/stock-config-routes');
+
 
 
 const app = express();
@@ -127,7 +129,10 @@ app.use('/oficialia/historial-vales', entryTicketHistoryOficialiaRoutes);
 app.use('/oficialia/historial-salidas', exitTicketHistoryOficialiaRoutes);
 
 app.use('/inventario/oficialia/acciones', accionesInventarioOficialiaRoutes);
+app.use('/inventario/general/acciones/ajustar-stock', stockConfigGeneral);
+
 app.use('/inventario/general/acciones', accionesInventarioGeneralRoutes);
+
 
 
 
