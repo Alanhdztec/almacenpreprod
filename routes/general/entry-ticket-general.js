@@ -19,6 +19,8 @@ router.use(requireAuth, requireAlmacen, requireSistema, getCurrentSystem);
 router.get('/create', EntryTicketGeneralController.showCreateForm);
 router.post('/create', EntryTicketGeneralController.createValeEntrada);
 router.get('/success/:id', EntryTicketGeneralController.showSuccess);
+// Rutas para editar un vale 'En Captura'
+router.get('/edit/:id', EntryTicketGeneralController.showEditForm);
 
 // ========================================
 // APIs PARA BÚSQUEDAS Y AUTOCOMPLETADO

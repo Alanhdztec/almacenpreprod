@@ -292,6 +292,46 @@ class EntryTicketGeneralController {
       });
     }
   }
+
+  // Mostrar formulario para EDITAR un vale de entrada
+  static async showEditForm(req, res) {
+    try {
+      const { id } = req.params;
+      const { vale, productos } = await EntryTicket.getValeForEditing(id);
+
+      // Cargar datos necesarios para los select del formulario
+      const [tiposCompra, partidas, estatusCaptura, requisiciones, unidades] = await Promise.all([
+        EntryTicket.getTiposCompra(),
+        EntryTicket.getPartidas(),
+        EntryTicket.getEstatusCaptura(),
+        EntryTicket.getRequisicionesEntrada(),
+        EntryTicket.getUnidades(),
+      ]);
+
+      res.render('entry-ticket/general/edit', {
+        title: `Editar Vale de Entrada #${vale.id_vale_de_entrada} - Almacén General`,
+        user: req.session.user,
+        vale,
+        productos: JSON.stringify(productos), // Convertir a JSON para el script
+        tiposCompra,
+        partidas,
+        estatusCaptura,
+        requisiciones,
+        unidades,
+        currentPage: 'entry-ticket-general',
+        sistema: 'GENERAL',
+        esAlmacenGeneral: true,
+        formData: vale
+      });
+
+    } catch (error) {
+      console.error(`Error al mostrar formulario de edición para vale #${req.params.id}:`, error);
+      res.status(500).render('error', {
+        title: 'Error al Cargar el Vale',
+        message: error.message || 'No se pudo cargar el vale de entrada para su edición.'
+      });
+    }
+  }
 }
 
 module.exports = EntryTicketGeneralController;
